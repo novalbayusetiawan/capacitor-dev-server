@@ -174,42 +174,6 @@ applyServer() => Promise<ServerOptions>
 
 ---
 
-### enableDevMode()
-
-Enables development mode features.
-
-```typescript
-enableDevMode() => Promise<{ enabled: true; }>
-```
-
-**Returns:** <code>Promise&lt;{ enabled: true; }&gt;</code>
-
----
-
-### disableDevMode()
-
-Disables development mode features.
-
-```typescript
-disableDevMode() => Promise<{ enabled: false; }>
-```
-
-**Returns:** <code>Promise&lt;{ enabled: false; }&gt;</code>
-
----
-
-### isDevModeEnabled()
-
-Checks if development mode is currently enabled.
-
-```typescript
-isDevModeEnabled() => Promise<{ enabled: boolean; }>
-```
-
-**Returns:** <code>Promise&lt;{ enabled: boolean; }&gt;</code>
-
----
-
 ### Interfaces
 
 #### ServerOptions

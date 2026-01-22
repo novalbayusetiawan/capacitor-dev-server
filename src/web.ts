@@ -34,7 +34,6 @@ export class CapacitorDevServerWeb extends WebPlugin implements CapacitorDevServ
 
   async clearServer(): Promise<{ cleared: boolean }> {
     localStorage.removeItem('cap_server_url');
-    localStorage.removeItem('cap_dev_enabled');
 
     try {
       window.dispatchEvent(new CustomEvent('capacitorDevServer:serverChanged', { detail: { cleared: true } }));
@@ -56,19 +55,5 @@ export class CapacitorDevServerWeb extends WebPlugin implements CapacitorDevServ
     }
 
     return result;
-  }
-
-  async enableDevMode(): Promise<{ enabled: true }> {
-    localStorage.setItem('cap_dev_enabled', '1');
-    return { enabled: true };
-  }
-
-  async disableDevMode(): Promise<{ enabled: false }> {
-    localStorage.setItem('cap_dev_enabled', '0');
-    return { enabled: false };
-  }
-
-  async isDevModeEnabled(): Promise<{ enabled: boolean }> {
-    return { enabled: localStorage.getItem('cap_dev_enabled') === '1' };
   }
 }

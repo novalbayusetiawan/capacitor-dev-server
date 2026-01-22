@@ -55,7 +55,6 @@ public class CapacitorDevServerPlugin extends Plugin {
         
         getPrefs().edit()
             .remove("server_url")
-            .remove("dev_enabled")
             .apply();
         JSObject ret = new JSObject();
         ret.put("cleared", true);
@@ -72,29 +71,5 @@ public class CapacitorDevServerPlugin extends Plugin {
     @PluginMethod
     public void applyServer(PluginCall call) {
         getServer(call);
-    }
-
-    @PluginMethod
-    public void enableDevMode(PluginCall call) {
-        getPrefs().edit().putBoolean("dev_enabled", true).apply();
-        JSObject ret = new JSObject();
-        ret.put("enabled", true);
-        call.resolve(ret);
-    }
-
-    @PluginMethod
-    public void disableDevMode(PluginCall call) {
-        getPrefs().edit().putBoolean("dev_enabled", false).apply();
-        JSObject ret = new JSObject();
-        ret.put("enabled", false);
-        call.resolve(ret);
-    }
-
-    @PluginMethod
-    public void isDevModeEnabled(PluginCall call) {
-        boolean enabled = getPrefs().getBoolean("dev_enabled", false);
-        JSObject ret = new JSObject();
-        ret.put("enabled", enabled);
-        call.resolve(ret);
     }
 }

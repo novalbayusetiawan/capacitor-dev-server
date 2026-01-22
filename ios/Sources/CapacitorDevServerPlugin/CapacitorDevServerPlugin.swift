@@ -13,9 +13,6 @@ public class CapacitorDevServerPlugin: CAPPlugin, CAPBridgedPlugin {
         CAPPluginMethod(name: "getServer", returnType: CAPPluginReturnPromise),
         CAPPluginMethod(name: "clearServer", returnType: CAPPluginReturnPromise),
         CAPPluginMethod(name: "applyServer", returnType: CAPPluginReturnPromise),
-        CAPPluginMethod(name: "enableDevMode", returnType: CAPPluginReturnPromise),
-        CAPPluginMethod(name: "disableDevMode", returnType: CAPPluginReturnPromise),
-        CAPPluginMethod(name: "isDevModeEnabled", returnType: CAPPluginReturnPromise),
     ]
     private let implementation = CapacitorDevServer()
     private let defaults = UserDefaults.standard
@@ -60,7 +57,6 @@ public class CapacitorDevServerPlugin: CAPPlugin, CAPBridgedPlugin {
         let autoRestart = call.getBool("autoRestart") ?? true
         
         defaults.removeObject(forKey: "server_url")
-        defaults.removeObject(forKey: "dev_enabled")
 
         let result: [String: Any] = ["cleared": true]
         notifyListeners("serverChanged", data: result)
@@ -89,20 +85,5 @@ public class CapacitorDevServerPlugin: CAPPlugin, CAPBridgedPlugin {
 
         notifyListeners("serverApply", data: result)
         call.resolve(result)
-    }
-
-    @objc func enableDevMode(_ call: CAPPluginCall) {
-        defaults.set(true, forKey: "dev_enabled")
-        call.resolve(["enabled": true])
-    }
-
-    @objc func disableDevMode(_ call: CAPPluginCall) {
-        defaults.set(false, forKey: "dev_enabled")
-        call.resolve(["enabled": false])
-    }
-
-    @objc func isDevModeEnabled(_ call: CAPPluginCall) {
-        let enabled = defaults.bool(forKey: "dev_enabled")
-        call.resolve(["enabled": enabled])
     }
 }

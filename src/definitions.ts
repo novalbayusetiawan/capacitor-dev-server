@@ -9,9 +9,4 @@ export interface CapacitorDevServerPlugin {
   getServer(): Promise<ServerOptions>;
   clearServer(): Promise<{ cleared: boolean }>;
   applyServer(): Promise<ServerOptions>;
-
-  // Dev mode toggles
-  enableDevMode(): Promise<{ enabled: true }>;
-  disableDevMode(): Promise<{ enabled: false }>;
-  isDevModeEnabled(): Promise<{ enabled: boolean }>;
 }
