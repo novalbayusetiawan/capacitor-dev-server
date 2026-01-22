@@ -7,17 +7,9 @@ export class CapacitorDevServerWeb extends WebPlugin implements CapacitorDevServ
     if (options.url !== undefined) {
       localStorage.setItem('cap_server_url', options.url);
     }
-    if (options.cleartext !== undefined) {
-      localStorage.setItem('cap_server_cleartext', options.cleartext ? '1' : '0');
-    }
-    if (options.scheme !== undefined) {
-      localStorage.setItem('cap_server_scheme', options.scheme);
-    }
 
     const result: ServerOptions = {
       url: localStorage.getItem('cap_server_url') || undefined,
-      cleartext: localStorage.getItem('cap_server_cleartext') === '1' || undefined,
-      scheme: localStorage.getItem('cap_server_scheme') || undefined,
       autoRestart: options.autoRestart,
     };
 
@@ -37,15 +29,11 @@ export class CapacitorDevServerWeb extends WebPlugin implements CapacitorDevServ
   async getServer(): Promise<ServerOptions> {
     return {
       url: localStorage.getItem('cap_server_url') || undefined,
-      cleartext: localStorage.getItem('cap_server_cleartext') === '1' || undefined,
-      scheme: localStorage.getItem('cap_server_scheme') || undefined,
     };
   }
 
   async clearServer(): Promise<{ cleared: boolean }> {
     localStorage.removeItem('cap_server_url');
-    localStorage.removeItem('cap_server_cleartext');
-    localStorage.removeItem('cap_server_scheme');
     localStorage.removeItem('cap_dev_enabled');
 
     try {
@@ -68,33 +56,6 @@ export class CapacitorDevServerWeb extends WebPlugin implements CapacitorDevServ
     }
 
     return result;
-  }
-
-  async setServerUrl(options: { url: string }): Promise<{ url: string }> {
-    localStorage.setItem('cap_server_url', options.url);
-    return { url: options.url };
-  }
-
-  async getServerUrl(): Promise<{ url: string }> {
-    return { url: localStorage.getItem('cap_server_url') || '' };
-  }
-
-  async setCleartext(options: { allow: boolean }): Promise<{ cleartext: boolean }> {
-    localStorage.setItem('cap_server_cleartext', options.allow ? '1' : '0');
-    return { cleartext: options.allow };
-  }
-
-  async getCleartext(): Promise<{ cleartext: boolean }> {
-    return { cleartext: localStorage.getItem('cap_server_cleartext') === '1' };
-  }
-
-  async setAndroidScheme(options: { scheme: string }): Promise<{ scheme: string }> {
-    localStorage.setItem('cap_server_scheme', options.scheme);
-    return { scheme: options.scheme };
-  }
-
-  async getAndroidScheme(): Promise<{ scheme: string }> {
-    return { scheme: localStorage.getItem('cap_server_scheme') || '' };
   }
 
   async enableDevMode(): Promise<{ enabled: true }> {

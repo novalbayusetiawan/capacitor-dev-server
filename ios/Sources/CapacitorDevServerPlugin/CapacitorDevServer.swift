@@ -4,10 +4,13 @@ import Foundation
     @objc public static func capacitorOptions() -> [String: Any] {
         var options: [String: Any] = [:]
         if let url = UserDefaults.standard.string(forKey: "server_url") {
+            // Infer cleartext and scheme
+            let isHttp = url.lowercased().hasPrefix("http://")
+            
             options["server"] = [
                 "url": url,
-                "cleartext": UserDefaults.standard.bool(forKey: "server_cleartext"),
-                "androidScheme": UserDefaults.standard.string(forKey: "server_scheme") ?? "https"
+                "cleartext": isHttp,
+                "androidScheme": isHttp ? "http" : "https"
             ]
         }
         return options

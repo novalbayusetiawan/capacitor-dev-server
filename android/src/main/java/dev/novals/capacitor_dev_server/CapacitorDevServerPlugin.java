@@ -24,20 +24,14 @@ public class CapacitorDevServerPlugin extends Plugin {
     @PluginMethod
     public void setServer(PluginCall call) {
         String url = call.getString("url");
-        Boolean cleartext = call.getBoolean("cleartext");
-        String scheme = call.getString("scheme");
         Boolean autoRestart = call.getBoolean("autoRestart", true);
 
         SharedPreferences.Editor editor = getPrefs().edit();
         if (url != null) editor.putString("server_url", url);
-        if (cleartext != null) editor.putBoolean("cleartext", cleartext);
-        if (scheme != null) editor.putString("android_scheme", scheme);
         editor.apply();
 
         JSObject ret = new JSObject();
         ret.put("url", getPrefs().getString("server_url", null));
-        ret.put("cleartext", getPrefs().getBoolean("cleartext", false));
-        ret.put("scheme", getPrefs().getString("android_scheme", null));
         
         if (autoRestart) {
             getBridge().executeOnMainThread(() -> {
@@ -52,8 +46,6 @@ public class CapacitorDevServerPlugin extends Plugin {
     public void getServer(PluginCall call) {
         JSObject ret = new JSObject();
         ret.put("url", getPrefs().getString("server_url", null));
-        ret.put("cleartext", getPrefs().getBoolean("cleartext", false));
-        ret.put("scheme", getPrefs().getString("android_scheme", null));
         call.resolve(ret);
     }
 
@@ -63,8 +55,6 @@ public class CapacitorDevServerPlugin extends Plugin {
         
         getPrefs().edit()
             .remove("server_url")
-            .remove("cleartext")
-            .remove("android_scheme")
             .remove("dev_enabled")
             .apply();
         JSObject ret = new JSObject();
@@ -81,72 +71,7 @@ public class CapacitorDevServerPlugin extends Plugin {
 
     @PluginMethod
     public void applyServer(PluginCall call) {
-        // applyServer is mostly a conceptual method for web to trigger events.
-        // On native, settings are already stored and will be used on next restart.
         getServer(call);
-    }
-
-    @PluginMethod
-    public void setServerUrl(PluginCall call) {
-        String url = call.getString("url");
-        if (url == null) {
-            call.reject("Must provide a url");
-            return;
-        }
-        getPrefs().edit().putString("server_url", url).apply();
-        JSObject ret = new JSObject();
-        ret.put("url", url);
-        call.resolve(ret);
-    }
-
-    @PluginMethod
-    public void getServerUrl(PluginCall call) {
-        String url = getPrefs().getString("server_url", "");
-        JSObject ret = new JSObject();
-        ret.put("url", url);
-        call.resolve(ret);
-    }
-
-    @PluginMethod
-    public void setCleartext(PluginCall call) {
-        Boolean allow = call.getBoolean("allow");
-        if (allow == null) {
-            call.reject("Must provide allow boolean");
-            return;
-        }
-        getPrefs().edit().putBoolean("cleartext", allow).apply();
-        JSObject ret = new JSObject();
-        ret.put("cleartext", allow);
-        call.resolve(ret);
-    }
-
-    @PluginMethod
-    public void getCleartext(PluginCall call) {
-        boolean allow = getPrefs().getBoolean("cleartext", false);
-        JSObject ret = new JSObject();
-        ret.put("cleartext", allow);
-        call.resolve(ret);
-    }
-
-    @PluginMethod
-    public void setAndroidScheme(PluginCall call) {
-        String scheme = call.getString("scheme");
-        if (scheme == null) {
-            call.reject("Must provide scheme");
-            return;
-        }
-        getPrefs().edit().putString("android_scheme", scheme).apply();
-        JSObject ret = new JSObject();
-        ret.put("scheme", scheme);
-        call.resolve(ret);
-    }
-
-    @PluginMethod
-    public void getAndroidScheme(PluginCall call) {
-        String scheme = getPrefs().getString("android_scheme", "");
-        JSObject ret = new JSObject();
-        ret.put("scheme", scheme);
-        call.resolve(ret);
     }
 
     @PluginMethod

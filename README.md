@@ -91,36 +91,17 @@ The primary use case for this plugin is to allow your Capacitor app to connect t
 
 ### Basic Usage
 
+Simply provide the URL of your development server. The plugin will automatically infer whether cleartext (HTTP) or specific schemes are needed based on the provided URL.
+
 ```typescript
 import { CapacitorDevServer } from 'capacitor-dev-server';
 
 async function connectToDevServer() {
   await CapacitorDevServer.setServer({
     url: 'http://192.168.1.5:3000',
-    cleartext: true, // Required for http:// on Android
     autoRestart: true, // Restarts the app to apply changes immediately
   });
 }
-```
-
-### Advanced Configuration
-
-You can also set individual properties if you don't want to use the full object:
-
-```typescript
-import { CapacitorDevServer } from 'capacitor-dev-server';
-
-// Set just the URL
-await CapacitorDevServer.setServerUrl({ url: 'http://192.168.1.5:3000' });
-
-// Enable cleartext traffic (HTTP) on Android
-await CapacitorDevServer.setCleartext({ allow: true });
-
-// Change the scheme (e.g. for custom deep links or localhost)
-await CapacitorDevServer.setAndroidScheme({ scheme: 'http' });
-
-// Finally, apply and restart
-await CapacitorDevServer.applyServer();
 ```
 
 ### Listening for Changes (Web)
@@ -143,7 +124,7 @@ window.addEventListener('capacitorDevServer:serverApply', (event) => {
 
 ### setServer(...)
 
-Updates the server configuration. This is the recommended way to set multiple options at once.
+Updates the server configuration.
 
 ```typescript
 setServer(options: ServerOptions) => Promise<ServerOptions>
@@ -193,90 +174,6 @@ applyServer() => Promise<ServerOptions>
 
 ---
 
-### setServerUrl(...)
-
-Convenience method to update only the server URL.
-
-```typescript
-setServerUrl(options: { url: string; }) => Promise<{ url: string; }>
-```
-
-| Param         | Type                          | Description                |
-| ------------- | ----------------------------- | -------------------------- |
-| **`options`** | <code>{ url: string; }</code> | Object containing the URL. |
-
-**Returns:** <code>Promise&lt;{ url: string; }&gt;</code>
-
----
-
-### getServerUrl()
-
-Retrieves only the currently saved server URL.
-
-```typescript
-getServerUrl() => Promise<{ url: string; }>
-```
-
-**Returns:** <code>Promise&lt;{ url: string; }&gt;</code>
-
----
-
-### setCleartext(...)
-
-Enables or disables cleartext (HTTP) traffic. Primarily used for Android development.
-
-```typescript
-setCleartext(options: { allow: boolean; }) => Promise<{ cleartext: boolean; }>
-```
-
-| Param         | Type                             | Description                         |
-| ------------- | -------------------------------- | ----------------------------------- |
-| **`options`** | <code>{ allow: boolean; }</code> | Whether to allow cleartext traffic. |
-
-**Returns:** <code>Promise&lt;{ cleartext: boolean; }&gt;</code>
-
----
-
-### getCleartext()
-
-Checks if cleartext traffic is currently allowed.
-
-```typescript
-getCleartext() => Promise<{ cleartext: boolean; }>
-```
-
-**Returns:** <code>Promise&lt;{ cleartext: boolean; }&gt;</code>
-
----
-
-### setAndroidScheme(...)
-
-Updates the URL scheme for Android (e.g., 'http' or 'https').
-
-```typescript
-setAndroidScheme(options: { scheme: string; }) => Promise<{ scheme: string; }>
-```
-
-| Param         | Type                             | Description        |
-| ------------- | -------------------------------- | ------------------ |
-| **`options`** | <code>{ scheme: string; }</code> | The scheme to use. |
-
-**Returns:** <code>Promise&lt;{ scheme: string; }&gt;</code>
-
----
-
-### getAndroidScheme()
-
-Retrieves the current Android URL scheme.
-
-```typescript
-getAndroidScheme() => Promise<{ scheme: string; }>
-```
-
-**Returns:** <code>Promise&lt;{ scheme: string; }&gt;</code>
-
----
-
 ### enableDevMode()
 
 Enables development mode features.
@@ -317,13 +214,11 @@ isDevModeEnabled() => Promise<{ enabled: boolean; }>
 
 #### ServerOptions
 
-The main configuration object for the server.
+The configuration object for the dev server.
 
 | Prop              | Type                 | Description                                      | Default |
 | ----------------- | -------------------- | ------------------------------------------------ | ------- |
 | **`url`**         | <code>string</code>  | The server URL (e.g. http://192.168.1.5:3000)    | —       |
-| **`cleartext`**   | <code>boolean</code> | Whether to allow HTTP traffic                    | —       |
-| **`scheme`**      | <code>string</code>  | The URL scheme (e.g. http, https)                | —       |
 | **`autoRestart`** | <code>boolean</code> | Automatically reload the webview (default: true) | `true`  |
 
 </docgen-api>
