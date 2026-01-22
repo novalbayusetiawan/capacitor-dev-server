@@ -33,6 +33,23 @@ public class MainActivity extends BridgeActivity {
 }
 ```
 
+> [!IMPORTANT]
+> **Android Cleartext Traffic**
+> By default, Android blocks non-HTTPS traffic. To load `http://` dev servers, you have two options:
+>
+> **Option 1: Main Manifest (Simple)**
+> Add `android:usesCleartextTraffic="true"` to your `<application>` tag in `android/app/src/main/AndroidManifest.xml`.
+>
+> **Option 2: Debug Manifest (Recommended)**
+> Create a debug-specific manifest at `android/app/src/debug/AndroidManifest.xml` to enable it only for development:
+>
+> ```xml
+> <?xml version="1.0" encoding="utf-8"?>
+> <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+>     <application android:usesCleartextTraffic="true" />
+> </manifest>
+> ```
+
 ## iOS Setup
 
 To enable dynamic loading on iOS, you must modify (or create) your `ViewController.swift` to merge the saved options with the default Capacitor options.
@@ -71,20 +88,20 @@ class ViewController: CAPBridgeViewController {
 
 <docgen-index>
 
-* [`setServer(...)`](#setserver)
-* [`getServer()`](#getserver)
-* [`clearServer()`](#clearserver)
-* [`applyServer()`](#applyserver)
-* [`setServerUrl(...)`](#setserverurl)
-* [`getServerUrl()`](#getserverurl)
-* [`setCleartext(...)`](#setcleartext)
-* [`getCleartext()`](#getcleartext)
-* [`setAndroidScheme(...)`](#setandroidscheme)
-* [`getAndroidScheme()`](#getandroidscheme)
-* [`enableDevMode()`](#enabledevmode)
-* [`disableDevMode()`](#disabledevmode)
-* [`isDevModeEnabled()`](#isdevmodeenabled)
-* [Interfaces](#interfaces)
+- [`setServer(...)`](#setserver)
+- [`getServer()`](#getserver)
+- [`clearServer()`](#clearserver)
+- [`applyServer()`](#applyserver)
+- [`setServerUrl(...)`](#setserverurl)
+- [`getServerUrl()`](#getserverurl)
+- [`setCleartext(...)`](#setcleartext)
+- [`getCleartext()`](#getcleartext)
+- [`setAndroidScheme(...)`](#setandroidscheme)
+- [`getAndroidScheme()`](#getandroidscheme)
+- [`enableDevMode()`](#enabledevmode)
+- [`disableDevMode()`](#disabledevmode)
+- [`isDevModeEnabled()`](#isdevmodeenabled)
+- [Interfaces](#interfaces)
 
 </docgen-index>
 
@@ -103,8 +120,7 @@ setServer(options: ServerOptions) => Promise<ServerOptions>
 
 **Returns:** <code>Promise&lt;<a href="#serveroptions">ServerOptions</a>&gt;</code>
 
---------------------
-
+---
 
 ### getServer()
 
@@ -114,8 +130,7 @@ getServer() => Promise<ServerOptions>
 
 **Returns:** <code>Promise&lt;<a href="#serveroptions">ServerOptions</a>&gt;</code>
 
---------------------
-
+---
 
 ### clearServer()
 
@@ -125,8 +140,7 @@ clearServer() => Promise<{ cleared: boolean; }>
 
 **Returns:** <code>Promise&lt;{ cleared: boolean; }&gt;</code>
 
---------------------
-
+---
 
 ### applyServer()
 
@@ -136,8 +150,7 @@ applyServer() => Promise<ServerOptions>
 
 **Returns:** <code>Promise&lt;<a href="#serveroptions">ServerOptions</a>&gt;</code>
 
---------------------
-
+---
 
 ### setServerUrl(...)
 
@@ -151,8 +164,7 @@ setServerUrl(options: { url: string; }) => Promise<{ url: string; }>
 
 **Returns:** <code>Promise&lt;{ url: string; }&gt;</code>
 
---------------------
-
+---
 
 ### getServerUrl()
 
@@ -162,8 +174,7 @@ getServerUrl() => Promise<{ url: string; }>
 
 **Returns:** <code>Promise&lt;{ url: string; }&gt;</code>
 
---------------------
-
+---
 
 ### setCleartext(...)
 
@@ -177,8 +188,7 @@ setCleartext(options: { allow: boolean; }) => Promise<{ cleartext: boolean; }>
 
 **Returns:** <code>Promise&lt;{ cleartext: boolean; }&gt;</code>
 
---------------------
-
+---
 
 ### getCleartext()
 
@@ -188,8 +198,7 @@ getCleartext() => Promise<{ cleartext: boolean; }>
 
 **Returns:** <code>Promise&lt;{ cleartext: boolean; }&gt;</code>
 
---------------------
-
+---
 
 ### setAndroidScheme(...)
 
@@ -203,8 +212,7 @@ setAndroidScheme(options: { scheme: string; }) => Promise<{ scheme: string; }>
 
 **Returns:** <code>Promise&lt;{ scheme: string; }&gt;</code>
 
---------------------
-
+---
 
 ### getAndroidScheme()
 
@@ -214,8 +222,7 @@ getAndroidScheme() => Promise<{ scheme: string; }>
 
 **Returns:** <code>Promise&lt;{ scheme: string; }&gt;</code>
 
---------------------
-
+---
 
 ### enableDevMode()
 
@@ -225,8 +232,7 @@ enableDevMode() => Promise<{ enabled: true; }>
 
 **Returns:** <code>Promise&lt;{ enabled: true; }&gt;</code>
 
---------------------
-
+---
 
 ### disableDevMode()
 
@@ -236,8 +242,7 @@ disableDevMode() => Promise<{ enabled: false; }>
 
 **Returns:** <code>Promise&lt;{ enabled: false; }&gt;</code>
 
---------------------
-
+---
 
 ### isDevModeEnabled()
 
@@ -247,11 +252,9 @@ isDevModeEnabled() => Promise<{ enabled: boolean; }>
 
 **Returns:** <code>Promise&lt;{ enabled: boolean; }&gt;</code>
 
---------------------
-
+---
 
 ### Interfaces
-
 
 #### ServerOptions
 

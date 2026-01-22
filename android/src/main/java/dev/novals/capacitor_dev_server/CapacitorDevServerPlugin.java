@@ -22,6 +22,54 @@ public class CapacitorDevServerPlugin extends Plugin {
     }
 
     @PluginMethod
+    public void setServer(PluginCall call) {
+        String url = call.getString("url");
+        Boolean cleartext = call.getBoolean("cleartext");
+        String scheme = call.getString("scheme");
+
+        SharedPreferences.Editor editor = getPrefs().edit();
+        if (url != null) editor.putString("server_url", url);
+        if (cleartext != null) editor.putBoolean("cleartext", cleartext);
+        if (scheme != null) editor.putString("android_scheme", scheme);
+        editor.apply();
+
+        JSObject ret = new JSObject();
+        ret.put("url", getPrefs().getString("server_url", null));
+        ret.put("cleartext", getPrefs().getBoolean("cleartext", false));
+        ret.put("scheme", getPrefs().getString("android_scheme", null));
+        call.resolve(ret);
+    }
+
+    @PluginMethod
+    public void getServer(PluginCall call) {
+        JSObject ret = new JSObject();
+        ret.put("url", getPrefs().getString("server_url", null));
+        ret.put("cleartext", getPrefs().getBoolean("cleartext", false));
+        ret.put("scheme", getPrefs().getString("android_scheme", null));
+        call.resolve(ret);
+    }
+
+    @PluginMethod
+    public void clearServer(PluginCall call) {
+        getPrefs().edit()
+            .remove("server_url")
+            .remove("cleartext")
+            .remove("android_scheme")
+            .remove("dev_enabled")
+            .apply();
+        JSObject ret = new JSObject();
+        ret.put("cleared", true);
+        call.resolve(ret);
+    }
+
+    @PluginMethod
+    public void applyServer(PluginCall call) {
+        // applyServer is mostly a conceptual method for web to trigger events.
+        // On native, settings are already stored and will be used on next restart.
+        getServer(call);
+    }
+
+    @PluginMethod
     public void setServerUrl(PluginCall call) {
         String url = call.getString("url");
         if (url == null) {

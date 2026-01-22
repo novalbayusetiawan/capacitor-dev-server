@@ -26,6 +26,12 @@ window.connectToServer = async (url) => {
     checkServer();
 }
 
+window.resetServer = async () => {
+    await CapacitorDevServer.clearServer();
+    alert('Server configurations cleared. Restart the app to use defaults.');
+    checkServer();
+}
+
 window.deleteServer = (url) => {
     let servers = getSavedServers();
     servers = servers.filter(s => s !== url);

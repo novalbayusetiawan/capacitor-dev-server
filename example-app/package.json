@@ -8,7 +8,7 @@
     "mobile"
   ],
   "scripts": {
-    "start": "vite",
+    "start": "vite --host",
     "build": "vite build",
     "preview": "vite preview"
   },
