@@ -25,7 +25,6 @@ window.addAndConnect = async () => {
 window.connectToServer = async (url) => {
     try {
         const result = await CapacitorDevServer.setServer({ url, cleartext: true });
-        alert(`Connected to ${url}.\n\nRestart the app (kill and open) to apply changes.`);
         checkServer();
     } catch (e) {
         alert('Failed to connect: ' + e.message);
@@ -35,7 +34,6 @@ window.connectToServer = async (url) => {
 window.resetServer = async () => {
     if (confirm('Are you sure you want to reset to project defaults?')) {
         await CapacitorDevServer.clearServer();
-        alert('Configurations cleared. Restart the app to apply defaults.');
         checkServer();
     }
 }

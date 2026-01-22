@@ -18,12 +18,17 @@ export class CapacitorDevServerWeb extends WebPlugin implements CapacitorDevServ
       url: localStorage.getItem('cap_server_url') || undefined,
       cleartext: localStorage.getItem('cap_server_cleartext') === '1' || undefined,
       scheme: localStorage.getItem('cap_server_scheme') || undefined,
+      autoRestart: options.autoRestart,
     };
 
     try {
       window.dispatchEvent(new CustomEvent('capacitorDevServer:serverChanged', { detail: result }));
     } catch (e) {
       // ignore in restricted environments
+    }
+
+    if (options.autoRestart !== false) {
+      window.location.reload();
     }
 
     return result;
@@ -49,6 +54,7 @@ export class CapacitorDevServerWeb extends WebPlugin implements CapacitorDevServ
       // ignore
     }
 
+    window.location.reload();
     return { cleared: true };
   }
 

@@ -2,6 +2,7 @@ export interface ServerOptions {
   url?: string;
   cleartext?: boolean;
   scheme?: string;
+  autoRestart?: boolean;
 }
 
 export interface CapacitorDevServerPlugin {
@@ -49,6 +50,7 @@ export const CapacitorDevServerWeb: CapacitorDevServerPlugin = {
       url: localStorage.getItem('cap_server_url') || undefined,
       cleartext: localStorage.getItem('cap_server_cleartext') === '1' || undefined,
       scheme: localStorage.getItem('cap_server_scheme') || undefined,
+      autoRestart: options.autoRestart,
     };
 
     // Emit a synthetic event so web apps can listen for changes if desired
@@ -56,6 +58,10 @@ export const CapacitorDevServerWeb: CapacitorDevServerPlugin = {
       window.dispatchEvent(new CustomEvent('capacitorDevServer:serverChanged', { detail: result }));
     } catch (e) {
       // ignore in restricted environments
+    }
+
+    if (options.autoRestart !== false) {
+      window.location.reload();
     }
 
     return result;
@@ -81,6 +87,7 @@ export const CapacitorDevServerWeb: CapacitorDevServerPlugin = {
       // ignore
     }
 
+    window.location.reload();
     return { cleared: true };
   },
 

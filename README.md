@@ -256,12 +256,11 @@ isDevModeEnabled() => Promise<{ enabled: boolean; }>
 
 ### Interfaces
 
-#### ServerOptions
-
-| Prop            | Type                 |
-| --------------- | -------------------- |
-| **`url`**       | <code>string</code>  |
-| **`cleartext`** | <code>boolean</code> |
-| **`scheme`**    | <code>string</code>  |
+| Prop              | Type                 | Description                                      |
+| ----------------- | -------------------- | ------------------------------------------------ |
+| **`url`**         | <code>string</code>  | The server URL (e.g. http://192.168.1.5:3000)    |
+| **`cleartext`**   | <code>boolean</code> | Whether to allow HTTP traffic                    |
+| **`scheme`**      | <code>string</code>  | The URL scheme (e.g. http, https)                |
+| **`autoRestart`** | <code>boolean</code> | Automatically reload the webview (default: true) |
 
 </docgen-api>

@@ -1,5 +1,6 @@
 import Capacitor
 import Foundation
+import UIKit
 
 /// Please read the Capacitor iOS Plugin Development Guide
 /// here: https://capacitorjs.com/docs/plugins/ios
@@ -28,6 +29,8 @@ public class CapacitorDevServerPlugin: CAPPlugin, CAPBridgedPlugin {
     // Store multiple server-related options at once (url, cleartext, scheme)
     // Any provided field will be persisted.
     @objc func setServer(_ call: CAPPluginCall) {
+        let autoRestart = call.getBool("autoRestart") ?? true
+        
         if let url = call.getString("url") {
             defaults.set(url, forKey: "server_url")
         }
@@ -46,6 +49,21 @@ public class CapacitorDevServerPlugin: CAPPlugin, CAPBridgedPlugin {
         // Notify the web layer or app that server settings changed
         notifyListeners("serverChanged", data: result)
 
+        if autoRestart {
+            DispatchQueue.main.async {
+                if let window = UIApplication.shared.windows.first(where: { $0.isKeyWindow }) {
+                    let storyboard = UIStoryboard(name: "Main", bundle: nil)
+                    if let vc = storyboard.instantiateInitialViewController() {
+                        window.rootViewController = vc
+                    } else {
+                        self.bridge?.reload()
+                    }
+                } else {
+                    self.bridge?.reload()
+                }
+            }
+        }
+
         call.resolve(result)
     }
 
@@ -58,6 +76,8 @@ public class CapacitorDevServerPlugin: CAPPlugin, CAPBridgedPlugin {
     }
 
     @objc func clearServer(_ call: CAPPluginCall) {
+        let autoRestart = call.getBool("autoRestart") ?? true
+        
         defaults.removeObject(forKey: "server_url")
         defaults.removeObject(forKey: "server_cleartext")
         defaults.removeObject(forKey: "server_scheme")
@@ -65,6 +85,22 @@ public class CapacitorDevServerPlugin: CAPPlugin, CAPBridgedPlugin {
 
         let result: [String: Any] = ["cleared": true]
         notifyListeners("serverChanged", data: result)
+        
+        if autoRestart {
+            DispatchQueue.main.async {
+                if let window = UIApplication.shared.windows.first(where: { $0.isKeyWindow }) {
+                    let storyboard = UIStoryboard(name: "Main", bundle: nil)
+                    if let vc = storyboard.instantiateInitialViewController() {
+                        window.rootViewController = vc
+                    } else {
+                        self.bridge?.reload()
+                    }
+                } else {
+                    self.bridge?.reload()
+                }
+            }
+        }
+        
         call.resolve(result)
     }
 

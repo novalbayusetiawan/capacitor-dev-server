@@ -26,6 +26,7 @@ public class CapacitorDevServerPlugin extends Plugin {
         String url = call.getString("url");
         Boolean cleartext = call.getBoolean("cleartext");
         String scheme = call.getString("scheme");
+        Boolean autoRestart = call.getBoolean("autoRestart", true);
 
         SharedPreferences.Editor editor = getPrefs().edit();
         if (url != null) editor.putString("server_url", url);
@@ -37,6 +38,13 @@ public class CapacitorDevServerPlugin extends Plugin {
         ret.put("url", getPrefs().getString("server_url", null));
         ret.put("cleartext", getPrefs().getBoolean("cleartext", false));
         ret.put("scheme", getPrefs().getString("android_scheme", null));
+        
+        if (autoRestart) {
+            getBridge().executeOnMainThread(() -> {
+                getActivity().recreate();
+            });
+        }
+        
         call.resolve(ret);
     }
 
@@ -51,6 +59,8 @@ public class CapacitorDevServerPlugin extends Plugin {
 
     @PluginMethod
     public void clearServer(PluginCall call) {
+        Boolean autoRestart = call.getBoolean("autoRestart", true);
+        
         getPrefs().edit()
             .remove("server_url")
             .remove("cleartext")
@@ -59,6 +69,13 @@ public class CapacitorDevServerPlugin extends Plugin {
             .apply();
         JSObject ret = new JSObject();
         ret.put("cleared", true);
+        
+        if (autoRestart) {
+            getBridge().executeOnMainThread(() -> {
+                getActivity().recreate();
+            });
+        }
+        
         call.resolve(ret);
     }
 
