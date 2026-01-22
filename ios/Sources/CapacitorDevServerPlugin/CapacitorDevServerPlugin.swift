@@ -8,7 +8,6 @@ public class CapacitorDevServerPlugin: CAPPlugin, CAPBridgedPlugin {
     public let identifier = "CapacitorDevServerPlugin"
     public let jsName = "CapacitorDevServer"
     public let pluginMethods: [CAPPluginMethod] = [
-        CAPPluginMethod(name: "echo", returnType: CAPPluginReturnPromise),
         CAPPluginMethod(name: "setServer", returnType: CAPPluginReturnPromise),
         CAPPluginMethod(name: "getServer", returnType: CAPPluginReturnPromise),
         CAPPluginMethod(name: "clearServer", returnType: CAPPluginReturnPromise),
@@ -25,13 +24,6 @@ public class CapacitorDevServerPlugin: CAPPlugin, CAPBridgedPlugin {
     ]
     private let implementation = CapacitorDevServer()
     private let defaults = UserDefaults.standard
-
-    @objc func echo(_ call: CAPPluginCall) {
-        let value = call.getString("value") ?? ""
-        call.resolve([
-            "value": implementation.echo(value)
-        ])
-    }
 
     // Store multiple server-related options at once (url, cleartext, scheme)
     // Any provided field will be persisted.

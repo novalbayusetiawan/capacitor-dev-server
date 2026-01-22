@@ -3,11 +3,6 @@ import { WebPlugin } from '@capacitor/core';
 import type { CapacitorDevServerPlugin, ServerOptions } from './definitions';
 
 export class CapacitorDevServerWeb extends WebPlugin implements CapacitorDevServerPlugin {
-  async echo(options: { value: string }): Promise<{ value: string }> {
-    console.log('[CapacitorDevServer][web] echo', options.value);
-    return { value: options.value };
-  }
-
   async setServer(options: ServerOptions): Promise<ServerOptions> {
     if (options.url !== undefined) {
       localStorage.setItem('cap_server_url', options.url);

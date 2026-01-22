@@ -16,15 +16,6 @@ public class CapacitorDevServerPlugin extends Plugin {
 
     private CapacitorDevServer implementation = new CapacitorDevServer();
 
-    @PluginMethod
-    public void echo(PluginCall call) {
-        String value = call.getString("value");
-
-        JSObject ret = new JSObject();
-        ret.put("value", implementation.echo(value));
-        call.resolve(ret);
-    }
-
     private SharedPreferences getPrefs() {
         Context ctx = getContext();
         return ctx.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);

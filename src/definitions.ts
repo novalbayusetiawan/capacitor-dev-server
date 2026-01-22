@@ -5,8 +5,6 @@ export interface ServerOptions {
 }
 
 export interface CapacitorDevServerPlugin {
-  echo(options: { value: string }): Promise<{ value: string }>;
-
   // Multi-field operations
   setServer(options: ServerOptions): Promise<ServerOptions>;
   getServer(): Promise<ServerOptions>;
@@ -36,11 +34,6 @@ export interface CapacitorDevServerPlugin {
  * that uses Capacitor's `registerPlugin` API. This file provides a portable fallback.
  */
 export const CapacitorDevServerWeb: CapacitorDevServerPlugin = {
-  echo: async ({ value }) => {
-    console.log('[CapacitorDevServer][web] echo', value);
-    return { value };
-  },
-
   setServer: async (options) => {
     if (options.url !== undefined) {
       localStorage.setItem('cap_server_url', options.url);

@@ -11,14 +11,28 @@
   </head>
   <body>
     <main>
-      <h1>Capacitor Test Plugin Project</h1>
-      <p>
-        This project can be used to test out the functionality of your plugin. Nothing in the
-        <em>example-app/</em> folder will be published to npm when using this template, so you can create away!
-      </p>
-      <label for="echoInput">Echo Text:</label>
-      <input type="text" id="echoInput" name="echoInput" value="Hello World!" />
-      <button onclick="testEcho()">Click Me!</button>
+      <section>
+        <h3>Current Status</h3>
+        <pre id="result"></pre>
+        <button onclick="checkServer()">Refresh Status</button>
+      </section>
+
+      <hr />
+
+      <section>
+        <h3>Add New Server</h3>
+        <div style="display: flex; gap: 8px; flex-direction: column;">
+          <input type="text" id="serverUrl" placeholder="http://192.168.1.5:3000" />
+          <button onclick="addAndConnect()">Add & Connect</button>
+        </div>
+      </section>
+
+      <hr />
+
+      <section>
+        <h3>Saved Servers</h3>
+        <ul id="serverList" style="list-style: none; padding: 0;"></ul>
+      </section>
     </main>
 
     <script src="./js/example.js" type="module"></script>
