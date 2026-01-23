@@ -23,13 +23,21 @@ public class DevServerPlugin extends Plugin {
     public void setServer(PluginCall call) {
         String url = call.getString("url");
         Boolean autoRestart = call.getBoolean("autoRestart", true);
+        Boolean persist = call.getBoolean("persist", false);
 
-        SharedPreferences.Editor editor = getPrefs().edit();
-        if (url != null) editor.putString("server_url", url);
-        editor.apply();
+        if (url != null) {
+            if (persist) {
+                getPrefs().edit().putString("server_url", url).apply();
+                DevServer.sessionUrl = null;
+            } else {
+                DevServer.sessionUrl = url;
+                getPrefs().edit().remove("server_url").apply();
+            }
+        }
 
         JSObject ret = new JSObject();
-        ret.put("url", getPrefs().getString("server_url", null));
+        ret.put("url", DevServer.sessionUrl != null ? DevServer.sessionUrl : getPrefs().getString("server_url", null));
+        ret.put("persist", persist);
         
         if (autoRestart) {
             getBridge().executeOnMainThread(() -> {
@@ -42,8 +50,10 @@ public class DevServerPlugin extends Plugin {
 
     @PluginMethod
     public void getServer(PluginCall call) {
+        String savedUrl = getPrefs().getString("server_url", null);
         JSObject ret = new JSObject();
-        ret.put("url", getPrefs().getString("server_url", null));
+        ret.put("url", DevServer.sessionUrl != null ? DevServer.sessionUrl : savedUrl);
+        ret.put("persist", DevServer.sessionUrl == null && savedUrl != null);
         call.resolve(ret);
     }
 
@@ -51,9 +61,11 @@ public class DevServerPlugin extends Plugin {
     public void clearServer(PluginCall call) {
         Boolean autoRestart = call.getBoolean("autoRestart", true);
         
+        DevServer.sessionUrl = null;
         getPrefs().edit()
             .remove("server_url")
             .apply();
+
         JSObject ret = new JSObject();
         ret.put("cleared", true);
         

@@ -6,10 +6,12 @@ import com.getcapacitor.CapConfig;
 import com.getcapacitor.Logger;
 
 public class DevServer {
+    public static String sessionUrl = null;
 
     public static CapConfig getCapacitorConfig(Context context) {
         SharedPreferences prefs = context.getSharedPreferences("capacitor_dev_server_prefs", Context.MODE_PRIVATE);
-        String serverUrl = prefs.getString("server_url", null);
+        String savedUrl = prefs.getString("server_url", null);
+        String serverUrl = sessionUrl != null ? sessionUrl : savedUrl;
 
         try {
             CapConfig config = CapConfig.loadDefault(context);

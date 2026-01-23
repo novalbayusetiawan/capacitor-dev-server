@@ -1,9 +1,12 @@
 import Foundation
 
 @objc public class DevServer: NSObject {
+    @objc public static var sessionUrl: String? = nil
+
     @objc public static func capacitorOptions() -> [String: Any] {
         var options: [String: Any] = [:]
-        if let url = UserDefaults.standard.string(forKey: "server_url") {
+        let savedUrl = UserDefaults.standard.string(forKey: "server_url")
+        if let url = sessionUrl ?? savedUrl {
             // Infer cleartext and scheme
             let isHttp = url.lowercased().hasPrefix("http://")
             

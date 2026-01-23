@@ -93,13 +93,16 @@ The primary use case for this plugin is to allow your Capacitor app to connect t
 
 Simply provide the URL of your development server. The plugin will automatically infer whether cleartext (HTTP) or specific schemes are needed based on the provided URL.
 
+By default, the server configuration is **session-only** (it will revert to the default when the app is restarted). Set `persist: true` if you want it to survive an app restart.
+
 ```typescript
 import { DevServer } from 'capacitor-dev-server';
 
 async function connectToDevServer() {
   await DevServer.setServer({
     url: 'http://192.168.1.5:3000',
-    autoRestart: true, // Restarts the app to apply changes immediately
+    autoRestart: true,
+    persist: true, // Optional: survives app restart. Default: false
   });
 }
 ```
@@ -138,7 +141,7 @@ getServer() => Promise<ServerOptions>
 
 ### clearServer()
 
-Clears all saved server configurations and resets the app to its default state. This will trigger an app restart.
+Clears all saved server configurations (both session and persistent) and resets the app to its default state. This will trigger an app restart.
 
 ```typescript
 clearServer() => Promise<{ cleared: boolean; }>
@@ -166,9 +169,10 @@ applyServer() => Promise<ServerOptions>
 
 The configuration object for the dev server.
 
-| Prop              | Type                 | Description                                      | Default |
-| ----------------- | -------------------- | ------------------------------------------------ | ------- |
-| **`url`**         | <code>string</code>  | The server URL (e.g. http://192.168.1.5:3000)    | —       |
-| **`autoRestart`** | <code>boolean</code> | Automatically reload the webview (default: true) | `true`  |
+| Prop              | Type                 | Description                                                                      | Default |
+| ----------------- | -------------------- | -------------------------------------------------------------------------------- | ------- |
+| **`url`**         | <code>string</code>  | The server URL (e.g. http://192.168.1.5:3000)                                    | —       |
+| **`autoRestart`** | <code>boolean</code> | Automatically reload the webview / restart native activity (default: true)       | `true`  |
+| **`persist`**     | <code>boolean</code> | Whether to save the server URL across app restarts/kill process (default: false) | `false` |
 
 </docgen-api>

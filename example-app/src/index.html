@@ -47,7 +47,11 @@
             />
             <button class="btn btn-primary join-item" onclick="addAndConnect()">Connect</button>
           </div>
-          <p class="text-[10px] opacity-40 mt-2">Example: http://192.168.1.5:3000</p>
+          <div class="flex items-center gap-2 mt-3">
+            <input type="checkbox" id="persistToggle" class="checkbox checkbox-primary checkbox-xs" />
+            <label for="persistToggle" class="text-[10px] opacity-70 cursor-pointer">Persist across app restart</label>
+          </div>
+          <p class="text-[10px] opacity-40 mt-1">Example: http://192.168.1.5:3000</p>
         </div>
       </div>
 

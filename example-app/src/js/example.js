@@ -9,6 +9,7 @@ window.checkServer = async () => {
 
 window.addAndConnect = async () => {
     const input = document.getElementById('serverUrl');
+    const persistToggle = document.getElementById('persistToggle');
     const url = input.value.trim();
     if (!url) return;
 
@@ -18,13 +19,14 @@ window.addAndConnect = async () => {
         saveServers(servers);
     }
     input.value = '';
-    await connectToServer(url);
+    const persist = persistToggle.checked;
+    await connectToServer(url, persist);
     renderServerList();
 }
 
-window.connectToServer = async (url) => {
+window.connectToServer = async (url, persist = false) => {
     try {
-        const result = await DevServer.setServer({ url });
+        const result = await DevServer.setServer({ url, persist });
         checkServer();
     } catch (e) {
         alert('Failed to connect: ' + e.message);

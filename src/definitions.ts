@@ -1,6 +1,12 @@
 export interface ServerOptions {
   url?: string;
   autoRestart?: boolean;
+  /**
+   * Whether to persist the server URL across app restarts.
+   * If false, the server will revert to the default on the next app launch.
+   * @default false
+   */
+  persist?: boolean;
 }
 
 export interface DevServerPlugin {
