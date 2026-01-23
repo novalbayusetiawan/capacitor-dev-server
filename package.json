@@ -1,7 +1,7 @@
 {
   "name": "capacitor-dev-server",
-  "version": "0.0.1",
-  "description": "a capacitor plugin",
+  "version": "1.0.0",
+  "description": "Dynamically switch Capacitor development server URLs at runtime without rebuilding the native app.",
   "main": "dist/plugin.cjs.js",
   "module": "dist/esm/index.js",
   "types": "dist/esm/index.d.ts",
@@ -19,15 +19,20 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/novalbayusetiawan/capacitor-dev-server.git.git"
+    "url": "git+https://github.com/novalbayusetiawan/capacitor-dev-server.git"
+  },
+  "publishConfig": {
+    "access": "public"
   },
   "bugs": {
-    "url": "https://github.com/novalbayusetiawan/capacitor-dev-server.git/issues"
+    "url": "https://github.com/novalbayusetiawan/capacitor-dev-server/issues"
   },
   "keywords": [
     "capacitor",
     "plugin",
-    "native"
+    "native",
+    "dev-server",
+    "hot-reload"
   ],
   "scripts": {
     "verify": "npm run verify:ios && npm run verify:android && npm run verify:web",
