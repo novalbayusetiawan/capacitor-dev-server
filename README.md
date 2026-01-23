@@ -20,14 +20,14 @@ package com.example.app;
 
 import com.getcapacitor.BridgeActivity;
 // Import the plugin
-import dev.novals.capacitor_dev_server.CapacitorDevServer;
+import dev.novals.devserver.DevServer;
 
 public class MainActivity extends BridgeActivity {
 
     @Override
     protected void load() {
         // Inject the dynamic config
-        this.config = CapacitorDevServer.getCapacitorConfig(this);
+        this.config = DevServer.getCapacitorConfig(this);
         super.load();
     }
 }
@@ -61,7 +61,7 @@ Open `ios/App/App/ViewController.swift`. If it doesn't exist, create it.
 import UIKit
 import Capacitor
 // Import the plugin
-import CapacitorDevServer
+import DevServerPlugin
 
 class ViewController: CAPBridgeViewController {
 
@@ -69,7 +69,7 @@ class ViewController: CAPBridgeViewController {
         var options = super.capacitorOptions() ?? [:]
 
         // Merge with our dev server options
-        let devOptions = CapacitorDevServer.capacitorOptions()
+        let devOptions = DevServer.capacitorOptions()
         for (key, value) in devOptions {
             options[key] = value
         }
@@ -94,28 +94,14 @@ The primary use case for this plugin is to allow your Capacitor app to connect t
 Simply provide the URL of your development server. The plugin will automatically infer whether cleartext (HTTP) or specific schemes are needed based on the provided URL.
 
 ```typescript
-import { CapacitorDevServer } from 'capacitor-dev-server';
+import { DevServer } from 'capacitor-dev-server';
 
 async function connectToDevServer() {
-  await CapacitorDevServer.setServer({
+  await DevServer.setServer({
     url: 'http://192.168.1.5:3000',
     autoRestart: true, // Restarts the app to apply changes immediately
   });
 }
-```
-
-### Listening for Changes (Web)
-
-In web development or testing environments, you can listen for custom events dispatched by the plugin:
-
-```javascript
-window.addEventListener('capacitorDevServer:serverChanged', (event) => {
-  console.log('Server config changed:', event.detail);
-});
-
-window.addEventListener('capacitorDevServer:serverApply', (event) => {
-  console.log('Server config applied:', event.detail);
-});
 ```
 
 ---

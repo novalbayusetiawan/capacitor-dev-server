@@ -1,6 +1,6 @@
 import Foundation
 
-@objc public class CapacitorDevServer: NSObject {
+@objc public class DevServer: NSObject {
     @objc public static func capacitorOptions() -> [String: Any] {
         var options: [String: Any] = [:]
         if let url = UserDefaults.standard.string(forKey: "server_url") {

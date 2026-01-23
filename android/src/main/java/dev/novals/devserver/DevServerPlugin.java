@@ -1,4 +1,4 @@
-package dev.novals.capacitor_dev_server;
+package dev.novals.devserver;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -9,12 +9,10 @@ import com.getcapacitor.PluginCall;
 import com.getcapacitor.PluginMethod;
 import com.getcapacitor.annotation.CapacitorPlugin;
 
-@CapacitorPlugin(name = "CapacitorDevServer")
-public class CapacitorDevServerPlugin extends Plugin {
+@CapacitorPlugin(name = "DevServer")
+public class DevServerPlugin extends Plugin {
 
     private static final String PREFS_NAME = "capacitor_dev_server_prefs";
-
-    private CapacitorDevServer implementation = new CapacitorDevServer();
 
     private SharedPreferences getPrefs() {
         Context ctx = getContext();

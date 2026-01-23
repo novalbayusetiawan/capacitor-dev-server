@@ -4,7 +4,7 @@ export default {
     {
       file: 'dist/plugin.js',
       format: 'iife',
-      name: 'capacitorCapacitorDevServer',
+      name: 'capacitorDevServer',
       globals: {
         '@capacitor/core': 'capacitorExports',
       },

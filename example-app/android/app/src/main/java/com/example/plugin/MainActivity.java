@@ -2,7 +2,7 @@ package com.example.plugin;
 
 import android.os.Bundle;
 import com.getcapacitor.BridgeActivity;
-import dev.novals.capacitor_dev_server.CapacitorDevServer;
+import dev.novals.devserver.DevServer;
 
 public class MainActivity extends BridgeActivity {
     @Override
@@ -12,7 +12,7 @@ public class MainActivity extends BridgeActivity {
 
     @Override
     protected void load() {
-        this.config = CapacitorDevServer.getCapacitorConfig(this);
+        this.config = DevServer.getCapacitorConfig(this);
         super.load();
     }
 }

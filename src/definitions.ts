@@ -3,7 +3,7 @@ export interface ServerOptions {
   autoRestart?: boolean;
 }
 
-export interface CapacitorDevServerPlugin {
+export interface DevServerPlugin {
   // Multi-field operations
   setServer(options: ServerOptions): Promise<ServerOptions>;
   getServer(): Promise<ServerOptions>;

@@ -2,27 +2,27 @@
 import PackageDescription
 
 let package = Package(
-    name: "CapacitorDevServer",
+    name: "DevServer",
     platforms: [.iOS(.v15)],
     products: [
         .library(
-            name: "CapacitorDevServer",
-            targets: ["CapacitorDevServerPlugin"])
+            name: "DevServer",
+            targets: ["DevServerPlugin"])
     ],
     dependencies: [
         .package(url: "https://github.com/ionic-team/capacitor-swift-pm.git", from: "8.0.0")
     ],
     targets: [
         .target(
-            name: "CapacitorDevServerPlugin",
+            name: "DevServerPlugin",
             dependencies: [
                 .product(name: "Capacitor", package: "capacitor-swift-pm"),
                 .product(name: "Cordova", package: "capacitor-swift-pm")
             ],
-            path: "ios/Sources/CapacitorDevServerPlugin"),
+            path: "ios/Sources/DevServerPlugin"),
         .testTarget(
-            name: "CapacitorDevServerPluginTests",
-            dependencies: ["CapacitorDevServerPlugin"],
-            path: "ios/Tests/CapacitorDevServerPluginTests")
+            name: "DevServerPluginTests",
+            dependencies: ["DevServerPlugin"],
+            path: "ios/Tests/DevServerPluginTests")
     ]
 )

@@ -1,10 +1,10 @@
 import { registerPlugin } from '@capacitor/core';
 
-import type { CapacitorDevServerPlugin } from './definitions';
+import type { DevServerPlugin } from './definitions';
 
-const CapacitorDevServer = registerPlugin<CapacitorDevServerPlugin>('CapacitorDevServer', {
-  web: () => import('./web').then((m) => new m.CapacitorDevServerWeb()),
+const DevServer = registerPlugin<DevServerPlugin>('DevServer', {
+  web: () => import('./web').then((m) => new m.DevServerWeb()),
 });
 
 export * from './definitions';
-export { CapacitorDevServer };
+export { DevServer };

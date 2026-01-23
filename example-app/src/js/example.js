@@ -1,9 +1,9 @@
-import { CapacitorDevServer } from 'capacitor-dev-server';
+import { DevServer } from 'capacitor-dev-server';
 
 const SERVERS_KEY = 'saved_dev_servers';
 
 window.checkServer = async () => {
-    const result = await CapacitorDevServer.getServer();
+    const result = await DevServer.getServer();
     document.getElementById('result').innerText = JSON.stringify(result, null, 2);
 }
 
@@ -24,7 +24,7 @@ window.addAndConnect = async () => {
 
 window.connectToServer = async (url) => {
     try {
-        const result = await CapacitorDevServer.setServer({ url, cleartext: true });
+        const result = await DevServer.setServer({ url });
         checkServer();
     } catch (e) {
         alert('Failed to connect: ' + e.message);
@@ -33,7 +33,7 @@ window.connectToServer = async (url) => {
 
 window.resetServer = async () => {
     if (confirm('Are you sure you want to reset to project defaults?')) {
-        await CapacitorDevServer.clearServer();
+        await DevServer.clearServer();
         checkServer();
     }
 }

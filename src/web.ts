@@ -1,8 +1,8 @@
 import { WebPlugin } from '@capacitor/core';
 
-import type { CapacitorDevServerPlugin, ServerOptions } from './definitions';
+import type { DevServerPlugin, ServerOptions } from './definitions';
 
-export class CapacitorDevServerWeb extends WebPlugin implements CapacitorDevServerPlugin {
+export class DevServerWeb extends WebPlugin implements DevServerPlugin {
   async setServer(options: ServerOptions): Promise<ServerOptions> {
     if (options.url !== undefined) {
       localStorage.setItem('cap_server_url', options.url);
@@ -12,12 +12,6 @@ export class CapacitorDevServerWeb extends WebPlugin implements CapacitorDevServ
       url: localStorage.getItem('cap_server_url') || undefined,
       autoRestart: options.autoRestart,
     };
-
-    try {
-      window.dispatchEvent(new CustomEvent('capacitorDevServer:serverChanged', { detail: result }));
-    } catch (e) {
-      // ignore in restricted environments
-    }
 
     if (options.autoRestart !== false) {
       window.location.reload();
@@ -35,25 +29,12 @@ export class CapacitorDevServerWeb extends WebPlugin implements CapacitorDevServ
   async clearServer(): Promise<{ cleared: boolean }> {
     localStorage.removeItem('cap_server_url');
 
-    try {
-      window.dispatchEvent(new CustomEvent('capacitorDevServer:serverChanged', { detail: { cleared: true } }));
-    } catch (e) {
-      // ignore
-    }
-
     window.location.reload();
     return { cleared: true };
   }
 
   async applyServer(): Promise<ServerOptions> {
     const result: ServerOptions = await this.getServer();
-
-    try {
-      window.dispatchEvent(new CustomEvent('capacitorDevServer:serverApply', { detail: result }));
-    } catch (e) {
-      // ignore
-    }
-
     return result;
   }
 }

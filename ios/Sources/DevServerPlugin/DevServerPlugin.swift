@@ -4,17 +4,17 @@ import UIKit
 
 /// Please read the Capacitor iOS Plugin Development Guide
 /// here: https://capacitorjs.com/docs/plugins/ios
-@objc(CapacitorDevServerPlugin)
-public class CapacitorDevServerPlugin: CAPPlugin, CAPBridgedPlugin {
-    public let identifier = "CapacitorDevServerPlugin"
-    public let jsName = "CapacitorDevServer"
+@objc(DevServerPlugin)
+public class DevServerPlugin: CAPPlugin, CAPBridgedPlugin {
+    public let identifier = "DevServerPlugin"
+    public let jsName = "DevServer"
     public let pluginMethods: [CAPPluginMethod] = [
         CAPPluginMethod(name: "setServer", returnType: CAPPluginReturnPromise),
         CAPPluginMethod(name: "getServer", returnType: CAPPluginReturnPromise),
         CAPPluginMethod(name: "clearServer", returnType: CAPPluginReturnPromise),
         CAPPluginMethod(name: "applyServer", returnType: CAPPluginReturnPromise),
     ]
-    private let implementation = CapacitorDevServer()
+    private let implementation = DevServer()
     private let defaults = UserDefaults.standard
 
     @objc func setServer(_ call: CAPPluginCall) {
@@ -26,8 +26,6 @@ public class CapacitorDevServerPlugin: CAPPlugin, CAPBridgedPlugin {
 
         var result: [String: Any] = [:]
         if let url = defaults.string(forKey: "server_url") { result["url"] = url }
-
-        notifyListeners("serverChanged", data: result)
 
         if autoRestart {
             DispatchQueue.main.async {
@@ -59,7 +57,6 @@ public class CapacitorDevServerPlugin: CAPPlugin, CAPBridgedPlugin {
         defaults.removeObject(forKey: "server_url")
 
         let result: [String: Any] = ["cleared": true]
-        notifyListeners("serverChanged", data: result)
         
         if autoRestart {
             DispatchQueue.main.async {
@@ -83,7 +80,6 @@ public class CapacitorDevServerPlugin: CAPPlugin, CAPBridgedPlugin {
         var result: [String: Any] = [:]
         result["url"] = defaults.string(forKey: "server_url") ?? ""
 
-        notifyListeners("serverApply", data: result)
         call.resolve(result)
     }
 }

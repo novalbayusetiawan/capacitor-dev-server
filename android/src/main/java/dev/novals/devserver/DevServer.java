@@ -1,11 +1,11 @@
-package dev.novals.capacitor_dev_server;
+package dev.novals.devserver;
 
 import android.content.Context;
 import android.content.SharedPreferences;
 import com.getcapacitor.CapConfig;
 import com.getcapacitor.Logger;
 
-public class CapacitorDevServer {
+public class DevServer {
 
     public static CapConfig getCapacitorConfig(Context context) {
         SharedPreferences prefs = context.getSharedPreferences("capacitor_dev_server_prefs", Context.MODE_PRIVATE);

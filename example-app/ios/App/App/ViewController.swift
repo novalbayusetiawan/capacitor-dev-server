@@ -1,6 +1,6 @@
 import UIKit
 import Capacitor
-import CapacitorDevServer
+import DevServerPlugin
 
 class ViewController: CAPBridgeViewController {
 
@@ -8,7 +8,7 @@ class ViewController: CAPBridgeViewController {
         var options = super.capacitorOptions() ?? [:]
         
         // Merge with our dev server options
-        let devOptions = CapacitorDevServer.capacitorOptions()
+        let devOptions = DevServer.capacitorOptions()
         for (key, value) in devOptions {
             options[key] = value
         }
