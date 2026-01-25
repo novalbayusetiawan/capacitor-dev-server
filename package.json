@@ -1,6 +1,6 @@
 {
   "name": "capacitor-dev-server",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Dynamically switch Capacitor development server URLs at runtime without rebuilding the native app.",
   "main": "dist/plugin.cjs.js",
   "module": "dist/esm/index.js",
