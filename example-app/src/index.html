@@ -62,8 +62,45 @@
           <!-- Server list items will be injected here -->
         </div>
       </div>
+      <!-- Webview Deployment -->
+      <div class="card bg-base-100 shadow-xl">
+        <div class="card-body p-6">
+          <h2 class="card-title text-sm uppercase tracking-widest opacity-70 mb-4">Webview Deployment</h2>
+          <div class="space-y-4">
+             <div class="join w-full">
+              <input 
+                type="text" 
+                id="assetUrl" 
+                value="https://github.com/novalbayusetiawan/capacitor-dev-server/archive/refs/heads/main.zip"
+                placeholder="https://example.com/app.zip" 
+                class="input input-bordered join-item w-full focus:input-primary text-xs" 
+              />
+              <button class="btn btn-primary join-item btn-sm" onclick="downloadAsset()">Download</button>
+            </div>
+            
+            <div class="flex justify-between items-center bg-base-300 p-2 rounded-lg">
+                <span class="text-xs opacity-70">Overwite existing?</span>
+                <input type="checkbox" id="overwriteToggle" class="toggle toggle-xs toggle-primary" checked />
+            </div>
+
+            <div class="divider text-xs opacity-50">Saved Assets</div>
+            
+            <div id="assetList" class="flex flex-col gap-2 max-h-40 overflow-y-auto">
+               <div class="text-center text-xs opacity-50 py-4">No assets found</div>
+            </div>
+            
+             <button class="btn btn-warning btn-outline btn-sm w-full" onclick="restoreDefault()">Restore Built-in Bundle</button>
+          </div>
+        </div>
+      </div>
+
     </div>
 
     <script src="./js/example.js" type="module"></script>
+    <script>
+      // Global scope helpers for onclick (module scroping issue workaround without rework)
+      window.downloadAsset = () => document.dispatchEvent(new CustomEvent('app:download'));
+      window.restoreDefault = () => document.dispatchEvent(new CustomEvent('app:restore'));
+    </script>
   </body>
 </html>

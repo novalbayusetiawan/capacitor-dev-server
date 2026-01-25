@@ -93,3 +93,79 @@ function renderServerList() {
 // Initial render
 renderServerList();
 checkServer();
+refreshAssetList();
+
+// Asset Management Logic
+document.addEventListener('app:download', async () => {
+    const input = document.getElementById('assetUrl');
+    const overwriteToggle = document.getElementById('overwriteToggle');
+    const url = input.value.trim();
+    if (!url) return;
+    
+    try {
+        await DevServer.downloadAsset({ 
+            url, 
+            overwrite: overwriteToggle.checked 
+        });
+        alert('Download complete!');
+        refreshAssetList();
+    } catch (e) {
+        alert('Download failed: ' + e.message);
+    }
+});
+
+document.addEventListener('app:restore', async () => {
+    if (confirm('Restore default assets?')) {
+        try {
+           await DevServer.restoreDefaultAsset(); 
+        } catch(e) {
+            alert('Restore failed: ' + e.message);
+        }
+    }
+});
+
+async function refreshAssetList() {
+    const list = document.getElementById('assetList');
+    try {
+        const result = await DevServer.getAssetList();
+        const assets = result.assets || [];
+        
+        if (assets.length === 0) {
+            list.innerHTML = `<div class="text-center text-xs opacity-50 py-4">No assets found</div>`;
+            return;
+        }
+        
+        list.innerHTML = assets.map(asset => `
+            <div class="flex justify-between items-center bg-base-200 p-2 rounded text-xs group">
+                <span class="font-mono truncate max-w-[150px]">${asset}</span>
+                <div class="flex gap-1">
+                    <button class="btn btn-xs btn-primary" onclick="window.applyAsset('${asset}')">Apply</button>
+                    <button class="btn btn-xs btn-ghost text-error" onclick="window.removeAsset('${asset}')">Del</button>
+                </div>
+            </div>
+        `).join('');
+    } catch (e) {
+        console.error('Failed to get assets', e);
+    }
+}
+
+window.applyAsset = async (assetName) => {
+    if (confirm(`Apply asset ${assetName}?`)) {
+        try {
+            await DevServer.applyAsset({ assetName });
+        } catch (e) {
+            alert('Failed to apply: ' + e.message);
+        }
+    }
+}
+
+window.removeAsset = async (assetName) => {
+    if (confirm(`Delete asset ${assetName}?`)) {
+        try {
+            await DevServer.removeAsset({ assetName });
+            refreshAssetList();
+        } catch (e) {
+            alert('Failed to delete: ' + e.message);
+        }
+    }
+}
