@@ -2,11 +2,11 @@
 import PackageDescription
 
 let package = Package(
-    name: "DevServer",
+    name: "CapacitorDevServer",
     platforms: [.iOS(.v15)],
     products: [
         .library(
-            name: "DevServer",
+            name: "CapacitorDevServer",
             targets: ["DevServerPlugin"])
     ],
     dependencies: [
