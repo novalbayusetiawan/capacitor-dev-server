@@ -25,6 +25,26 @@ public class DevServerPlugin extends Plugin {
     public void load() {
         super.load();
         assetManager = new AssetManager(getContext());
+        
+        // Check for persisted asset
+        String persistedAsset = getPrefs().getString("active_asset", null);
+        if (persistedAsset != null) {
+            String assetPath = assetManager.getAssetPath(persistedAsset);
+            if (assetPath != null) {
+                File rootDir = new java.io.File(assetPath);
+                File webRootDir = findWebRoot(rootDir);
+                if (webRootDir == null) webRootDir = rootDir;
+                
+                try {
+                    startLocalServer(webRootDir);
+                    // Note: We don't need to patch CapConfig here because DevServer.java logic handled the `server_url` preference which was set in applyAsset.
+                    // We just need to make sure the server IS RUNNING so when WebView calls, it works.
+                } catch (IOException e) {
+                   // Log error
+                   e.printStackTrace();
+                }
+            }
+        }
     }
 
     private SharedPreferences getPrefs() {
@@ -46,6 +66,8 @@ public class DevServerPlugin extends Plugin {
                 DevServer.sessionUrl = url;
                 getPrefs().edit().remove("server_url").apply();
             }
+            // If setting manual server, clear active asset persistence
+            getPrefs().edit().remove("active_asset").apply();
         }
 
         JSObject ret = new JSObject();
@@ -77,6 +99,7 @@ public class DevServerPlugin extends Plugin {
         DevServer.sessionUrl = null;
         getPrefs().edit()
             .remove("server_url")
+            .remove("active_asset")
             .apply();
         
         // Also stop local server if running
@@ -127,9 +150,6 @@ public class DevServerPlugin extends Plugin {
         List<String> assets = assetManager.getAssetList();
         
         JSObject ret = new JSObject();
-        // Manually build JSON array string or use a loop because JSObject doesn't support List<String> directly easily in all versions? 
-        // Actually Capacitor JSObject supports put(key, Object) but let's be safe.
-        // It should support JSArray.
         com.getcapacitor.JSArray array = new com.getcapacitor.JSArray();
         for(String s : assets) {
             array.put(s);
@@ -152,6 +172,8 @@ public class DevServerPlugin extends Plugin {
     @PluginMethod
     public void applyAsset(PluginCall call) {
         String assetName = call.getString("assetName");
+        Boolean persist = call.getBoolean("persist", false);
+        
         if (assetName == null) {
             call.reject("Asset Name is required");
             return;
@@ -168,16 +190,12 @@ public class DevServerPlugin extends Plugin {
         File webRootDir = findWebRoot(rootDir);
         
         if (webRootDir == null) {
-             // Fallback to extracted root, even if index.html is missing (user might use different entry point?)
-             // But usually this means a bad zip.
              webRootDir = rootDir;
         }
 
         // Start Local Server
-        stopLocalServer(); // Ensure strict single instance
         try {
-            localServer = new LocalServer(LOCAL_PORT, webRootDir);
-            localServer.start();
+            startLocalServer(webRootDir);
         } catch (IOException e) {
             call.reject("Failed to start local server: " + e.getMessage());
             return;
@@ -185,7 +203,19 @@ public class DevServerPlugin extends Plugin {
 
         String localUrl = "http://localhost:" + LOCAL_PORT;
         
-        DevServer.sessionUrl = localUrl;
+        if (persist) {
+            getPrefs().edit()
+                .putString("server_url", localUrl)
+                .putString("active_asset", assetName)
+                .commit();
+            DevServer.sessionUrl = null;
+        } else {
+            DevServer.sessionUrl = localUrl;
+            getPrefs().edit()
+                .remove("server_url")
+                .remove("active_asset")
+                .commit();
+        }
         
         // Reload
         getBridge().executeOnMainThread(() -> {
@@ -216,7 +246,10 @@ public class DevServerPlugin extends Plugin {
     public void restoreDefaultAsset(PluginCall call) {
         stopLocalServer();
         DevServer.sessionUrl = null;
-        getPrefs().edit().remove("server_url").apply();
+        getPrefs().edit()
+            .remove("server_url")
+            .remove("active_asset")
+            .commit();
         
         getBridge().executeOnMainThread(() -> {
             getActivity().recreate();
@@ -224,6 +257,29 @@ public class DevServerPlugin extends Plugin {
         call.resolve();
     }
     
+    private synchronized void startLocalServer(File webRootDir) throws IOException {
+        if (localServer != null && localServer.isAlive()) {
+             // Server is already running, just swap the root!
+             localServer.setRootDir(webRootDir);
+             return;
+        }
+        
+        // If dead or null, cleanup just in case
+        if (localServer != null) {
+            localServer.stop();
+            localServer = null;
+        }
+
+        // Start fresh on strict port 8080 (as requested by user)
+        // We no longer increment ports.
+        try {
+            localServer = new LocalServer(LOCAL_PORT, webRootDir);
+            localServer.start();
+        } catch (IOException e) {
+            throw new IOException("Failed to start server on port " + LOCAL_PORT + ". " + e.getMessage());
+        }
+    }
+
     private void stopLocalServer() {
         if (localServer != null) {
             localServer.stop();

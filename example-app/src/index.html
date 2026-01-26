@@ -10,97 +10,178 @@
     <link href="https://cdn.jsdelivr.net/npm/daisyui@4.12.10/dist/full.min.css" rel="stylesheet" type="text/css" />
     <script src="https://cdn.tailwindcss.com"></script>
   </head>
-  <body class="bg-base-200 min-h-screen pb-10">
-    <div class="max-w-md mx-auto p-4 space-y-6">
-      <header class="text-center py-6">
-        <h1 class="text-3xl font-bold text-primary">Dev Server</h1>
-        <p class="text-base-content/60">Manage your dynamic server URLs</p>
+  <body class="bg-gradient-to-br from-base-100 to-base-200 min-h-screen pb-20 font-sans selection:bg-primary selection:text-primary-content">
+    <div class="max-w-md bg-white mx-auto p-4 space-y-6">
+      
+      <!-- Header -->
+      <header class="text-center py-6 animate-fade-in-down">
+        <div class="inline-block p-3 rounded-2xl bg-primary/10 mb-3">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" /></svg>
+        </div>
+        <h1 class="text-3xl font-extrabold tracking-tight text-base-content">Dev Server <span class="text-primary">Manager</span></h1>
+        <p class="text-base-content/60 font-medium mt-1">Control your app's environment</p>
       </header>
 
-      <!-- Current Status Card -->
-      <div class="card bg-base-100 shadow-xl overflow-hidden">
-        <div class="card-body p-6">
-          <div class="flex justify-between items-center mb-2">
-            <h2 class="card-title text-sm uppercase tracking-widest opacity-70">Current Config</h2>
-            <div class="badge badge-success badge-sm gap-1">Live</div>
+      <!-- Status Card -->
+      <div class="card bg-base-100/60 backdrop-blur-md shadow-xl border border-base-content/5 overflow-hidden transition-all duration-300 hover:shadow-2xl">
+        <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary to-secondary"></div>
+        <div class="card-body p-5">
+            <div class="flex justify-between items-start mb-2">
+                <div>
+                   <h2 class="text-xs font-bold uppercase tracking-widest opacity-50">Current Environment</h2>
+                   <div class="flex items-center gap-2 mt-1">
+                        <span class="relative flex h-2 w-2">
+                          <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-success opacity-75"></span>
+                          <span class="relative inline-flex rounded-full h-2 w-2 bg-success"></span>
+                        </span>
+                        <span class="text-success font-bold text-xs">ACTIVE</span>
+                   </div>
+                </div>
+                <button class="btn btn-circle btn-ghost btn-sm text-base-content/40 hover:text-primary" onclick="checkServer()" title="Refresh">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
+                </button>
+            </div>
+            
+          <div class="bg-base-200/50 rounded-xl p-3 border border-base-content/5">
+            <pre id="result" class="text-xs font-mono text-base-content/80 whitespace-pre-wrap break-all h-20 overflow-y-auto custom-scrollbar">Loading...</pre>
           </div>
-          <div class="bg-base-300 rounded-lg p-3">
-            <pre id="result" class="text-xs font-mono whitespace-pre-wrap break-all h-24 overflow-y-auto">Loading...</pre>
-          </div>
-          <div class="card-actions justify-end mt-4 gap-2">
-            <button class="btn btn-ghost btn-sm" onclick="checkServer()">Refresh</button>
-            <button class="btn btn-error btn-outline btn-sm" onclick="resetServer()">Reset Defaults</button>
+          
+           <div class="card-actions justify-end mt-2">
+            <button class="btn btn-xs btn-ghost text-error hover:bg-error/10" onclick="resetServer()">
+                Reset Configuration
+            </button>
           </div>
         </div>
       </div>
 
-      <!-- Add Server Card -->
-      <div class="card bg-base-100 shadow-xl">
-        <div class="card-body p-6">
-          <h2 class="card-title text-sm uppercase tracking-widest opacity-70 mb-4">Add Dev Server</h2>
-          <div class="join w-full">
-            <input 
-              type="text" 
-              id="serverUrl" 
-              placeholder="http://192.168.1.5:3000" 
-              class="input input-bordered join-item w-full focus:input-primary transition-all" 
-            />
-            <button class="btn btn-primary join-item" onclick="addAndConnect()">Connect</button>
-          </div>
-          <div class="flex items-center gap-2 mt-3">
-            <input type="checkbox" id="persistToggle" class="checkbox checkbox-primary checkbox-xs" />
-            <label for="persistToggle" class="text-[10px] opacity-70 cursor-pointer">Persist across app restart</label>
-          </div>
-          <p class="text-[10px] opacity-40 mt-1">Example: http://192.168.1.5:3000</p>
-        </div>
+      <!-- Tabs -->
+      <div role="tablist" class="tabs tabs-boxed bg-base-100/50 p-1 mb-6">
+        <a role="tab" class="tab transition-all duration-300 tab-active" onclick="switchTab(event, 'tab-server')">Remote Server</a>
+        <a role="tab" class="tab transition-all duration-300" onclick="switchTab(event, 'tab-assets')">Bundles</a>
       </div>
 
-      <!-- Saved Servers -->
-      <div class="space-y-3">
-        <h2 class="text-sm uppercase tracking-widest opacity-70 px-2">History</h2>
-        <div id="serverList" class="space-y-2">
-          <!-- Server list items will be injected here -->
-        </div>
-      </div>
-      <!-- Webview Deployment -->
-      <div class="card bg-base-100 shadow-xl">
-        <div class="card-body p-6">
-          <h2 class="card-title text-sm uppercase tracking-widest opacity-70 mb-4">Webview Deployment</h2>
-          <div class="space-y-4">
-             <div class="join w-full">
-              <input 
-                type="text" 
-                id="assetUrl" 
-                value="https://github.com/novalbayusetiawan/capacitor-dev-server/archive/refs/heads/main.zip"
-                placeholder="https://example.com/app.zip" 
-                class="input input-bordered join-item w-full focus:input-primary text-xs" 
-              />
-              <button class="btn btn-primary join-item btn-sm" onclick="downloadAsset()">Download</button>
+      <!-- Tab Content: Remote Server -->
+      <div id="tab-server" class="content-panel transition-all duration-300 space-y-6">
+          <div class="card bg-base-100 shadow-lg border border-base-content/5">
+            <div class="card-body p-5">
+              <h2 class="card-title text-sm uppercase tracking-widest opacity-60 mb-4 flex items-center gap-2">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" /></svg>
+                  Connect to HOST
+              </h2>
+              <div class="join w-full shadow-sm">
+                <div class="relative w-full">
+                     <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-base-content/30">
+                        <span class="text-xs">http://</span>
+                    </div>
+                    <input 
+                    type="text" 
+                    id="serverUrl" 
+                    placeholder="192.168.1.5:3000" 
+                    class="input input-bordered join-item w-full pl-12 focus:outline-none focus:border-primary transition-all text-sm" 
+                    />
+                </div>
+                <button class="btn btn-primary join-item px-6" onclick="addAndConnect()">
+                    <span class="hidden sm:inline">Connect</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 sm:hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" /></svg>
+                </button>
+              </div>
+              <div class="form-control">
+                <label class="label cursor-pointer justify-start gap-3">
+                  <input type="checkbox" id="persistToggle" class="checkbox checkbox-primary checkbox-sm rounded-md" />
+                  <span class="label-text text-xs font-medium opacity-80">Auto-connect on app restart</span>
+                </label>
+              </div>
             </div>
-            
-            <div class="flex justify-between items-center bg-base-300 p-2 rounded-lg">
-                <span class="text-xs opacity-70">Overwite existing?</span>
-                <input type="checkbox" id="overwriteToggle" class="toggle toggle-xs toggle-primary" checked />
-            </div>
-
-            <div class="divider text-xs opacity-50">Saved Assets</div>
-            
-            <div id="assetList" class="flex flex-col gap-2 max-h-40 overflow-y-auto">
-               <div class="text-center text-xs opacity-50 py-4">No assets found</div>
-            </div>
-            
-             <button class="btn btn-warning btn-outline btn-sm w-full" onclick="restoreDefault()">Restore Built-in Bundle</button>
           </div>
-        </div>
+
+          <div class="space-y-3 px-1">
+            <div class="flex items-center justify-between mb-2">
+                <h2 class="text-xs font-bold uppercase tracking-widest opacity-40">Recent History</h2>
+            </div>
+            
+            <div id="serverList" class="space-y-2">
+              <!-- Server list items will be injected here -->
+            </div>
+          </div>
+      </div>
+
+       <!-- Tab Content: Assets -->
+      <div id="tab-assets" class="content-panel transition-all duration-300 hidden space-y-6">
+         <!-- Download Card -->
+          <div class="card bg-base-100 shadow-lg border border-base-content/5">
+            <div class="card-body p-5">
+               <h2 class="card-title text-sm uppercase tracking-widest opacity-60 mb-4 flex items-center gap-2">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
+                  Download Bundle
+              </h2>
+              <div class="space-y-4">
+                 <div class="join w-full shadow-sm">
+                  <input 
+                    type="text" 
+                    id="assetUrl" 
+                    placeholder="https://example.com/app.zip" 
+                    class="input input-bordered join-item w-full focus:outline-none focus:border-primary text-sm" 
+                  />
+                  <button class="btn btn-primary join-item" onclick="downloadAsset()">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
+                  </button>
+                </div>
+                
+                <div class="bg-base-200/50 p-3 rounded-lg flex items-center justify-between">
+                     <span class="text-xs font-medium opacity-70">Overwrite existing files?</span>
+                     <input type="checkbox" id="overwriteToggle" class="toggle toggle-sm toggle-primary" checked />
+                </div>
+              </div>
+            </div>
+          </div>
+          
+           <!-- Saved Assets List -->
+            <div class="space-y-3 px-1">
+                <div class="flex items-center justify-between mb-2">
+                    <h2 class="text-xs font-bold uppercase tracking-widest opacity-40">Local Bundles</h2>
+                </div>
+                
+                <div id="assetList" class="flex flex-col gap-2 max-h-60 overflow-y-auto custom-scrollbar">
+                   <!-- Asset items -->
+                </div>
+                
+                <button class="btn btn-outline btn-warning w-full mt-4 gap-2" onclick="restoreDefault()">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" /></svg>
+                    Restore Original Built-in Bundle
+                </button>
+            </div>
       </div>
 
     </div>
 
+    <!-- Custom Style for subtle scrollbar -->
+    <style>
+        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background-color: rgba(0,0,0,0.1); border-radius: 4px; }
+        .animate-fade-in-down { animation: fadeInDown 0.5s ease-out; }
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+
     <script src="./js/example.js" type="module"></script>
     <script>
-      // Global scope helpers for onclick (module scroping issue workaround without rework)
+      // Global scope helpers
       window.downloadAsset = () => document.dispatchEvent(new CustomEvent('app:download'));
       window.restoreDefault = () => document.dispatchEvent(new CustomEvent('app:restore'));
+      
+      // Basic Tab Switching Logic
+      window.switchTab = (event, tabId) => {
+          // Reset tabs state
+          document.querySelectorAll('.tab').forEach(t => t.classList.remove('tab-active', 'bg-white', 'shadow-sm'));
+          document.querySelectorAll('.content-panel').forEach(c => c.classList.add('hidden'));
+          
+          // Set active
+          event.target.classList.add('tab-active', 'bg-white', 'shadow-sm');
+          document.getElementById(tabId).classList.remove('hidden');
+      }
     </script>
   </body>
 </html>

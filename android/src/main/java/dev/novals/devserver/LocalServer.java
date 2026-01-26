@@ -8,10 +8,14 @@ import java.io.InputStream;
 import android.webkit.MimeTypeMap;
 
 public class LocalServer extends NanoHTTPD {
-    private final File rootDir;
+    private File rootDir;
 
     public LocalServer(int port, File rootDir) {
         super(port);
+        this.rootDir = rootDir;
+    }
+
+    public void setRootDir(File rootDir) {
         this.rootDir = rootDir;
     }
 

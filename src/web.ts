@@ -59,7 +59,7 @@ export class DevServerWeb extends WebPlugin implements DevServerPlugin {
     return { assets: [] };
   }
 
-  async applyAsset(options: { assetName: string }): Promise<void> {
+  async applyAsset(options: { assetName: string; persist?: boolean }): Promise<void> {
     console.warn('applyAsset is not supported on web', options);
   }
 

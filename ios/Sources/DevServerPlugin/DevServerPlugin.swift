@@ -27,6 +27,23 @@ public class DevServerPlugin: CAPPlugin, CAPBridgedPlugin {
     private var webServer: GCDWebServer?
     private let LOCAL_PORT: UInt = 8080
 
+    override public func load() {
+        // Check for persisted asset
+        if let assetName = defaults.string(forKey: "active_asset"),
+           let assetPath = assetManager.getAssetPath(assetName: assetName) {
+            
+            // Smart Web Root Detection (reuse logic)
+            let rootUrl = URL(fileURLWithPath: assetPath)
+            let webRootPath = findWebRoot(dir: rootUrl)?.path ?? assetPath
+            
+            do {
+                _ = try startLocalServer(webRootDir: webRootPath)
+            } catch {
+                print("DevServer: Failed to restore local server: \(error)")
+            }
+        }
+    }
+
     @objc func setServer(_ call: CAPPluginCall) {
         let autoRestart = call.getBool("autoRestart") ?? true
         let persist = call.getBool("persist") ?? false
@@ -39,6 +56,8 @@ public class DevServerPlugin: CAPPlugin, CAPBridgedPlugin {
                 DevServer.sessionUrl = url
                 defaults.removeObject(forKey: "server_url")
             }
+            // Clear active asset if manual server set
+            defaults.removeObject(forKey: "active_asset")
         }
 
         var result: [String: Any] = [:]
@@ -67,6 +86,7 @@ public class DevServerPlugin: CAPPlugin, CAPBridgedPlugin {
         
         DevServer.sessionUrl = nil
         defaults.removeObject(forKey: "server_url")
+        defaults.removeObject(forKey: "active_asset")
         
         stopLocalServer()
 
@@ -122,6 +142,7 @@ public class DevServerPlugin: CAPPlugin, CAPBridgedPlugin {
             call.reject("Asset Name is required")
             return
         }
+        let persist = call.getBool("persist") ?? false
         
         guard let assetPath = assetManager.getAssetPath(assetName: assetName) else {
             call.reject("Asset not found")
@@ -134,21 +155,25 @@ public class DevServerPlugin: CAPPlugin, CAPBridgedPlugin {
         let rootUrl = URL(fileURLWithPath: assetPath)
         let webRootPath = findWebRoot(dir: rootUrl)?.path ?? assetPath
         
-        webServer = GCDWebServer()
-        webServer?.addGETHandler(forBasePath: "/", directoryPath: webRootPath, indexFilename: "index.html", cacheAge: 0, allowRangeRequests: true)
-        
+        var actualPort = LOCAL_PORT
         do {
-            try webServer?.start(options: [
-                GCDWebServerOption_Port: LOCAL_PORT,
-                GCDWebServerOption_BindToLocalhost: true
-            ])
+            actualPort = try startLocalServer(webRootDir: webRootPath)
         } catch {
-            call.reject("Failed to start local server: \(error.localizedDescription)")
-            return
+             call.reject("Failed to start local server: \(error.localizedDescription)")
+             return
         }
         
-        let localUrl = "http://localhost:\(LOCAL_PORT)"
-        DevServer.sessionUrl = localUrl
+        let localUrl = "http://localhost:\(actualPort)"
+        
+        if persist {
+            defaults.set(localUrl, forKey: "server_url")
+            defaults.set(assetName, forKey: "active_asset")
+            DevServer.sessionUrl = nil
+        } else {
+            DevServer.sessionUrl = localUrl
+            defaults.removeObject(forKey: "server_url")
+            defaults.removeObject(forKey: "active_asset")
+        }
         
         DispatchQueue.main.async {
             self.reloadApp()
@@ -185,6 +210,7 @@ public class DevServerPlugin: CAPPlugin, CAPBridgedPlugin {
         stopLocalServer()
         DevServer.sessionUrl = nil
         defaults.removeObject(forKey: "server_url")
+        defaults.removeObject(forKey: "active_asset")
         
         DispatchQueue.main.async {
             self.reloadApp()
@@ -192,6 +218,39 @@ public class DevServerPlugin: CAPPlugin, CAPBridgedPlugin {
         call.resolve()
     }
     
+    private func startLocalServer(webRootDir: String) throws -> UInt {
+        // Stop any existing server
+        if let server = webServer, server.isRunning {
+             server.stop()
+             webServer = nil
+             // Brief pause to allow socket release (crucial for iOS sometimes)
+             Thread.sleep(forTimeInterval: 0.1)
+        }
+        
+        // Re-init server
+        webServer = GCDWebServer()
+        webServer?.addGETHandler(forBasePath: "/", directoryPath: webRootDir, indexFilename: "index.html", cacheAge: 0, allowRangeRequests: true)
+        
+        // Strict single port
+        let port = LOCAL_PORT
+        
+        do {
+            try webServer?.start(options: [
+                GCDWebServerOption_Port: port,
+                GCDWebServerOption_BindToLocalhost: true
+            ])
+            return port
+        } catch {
+             // If failed, make one last desperate attempt after a slightly longer pause
+             Thread.sleep(forTimeInterval: 0.2)
+             try webServer?.start(options: [
+                GCDWebServerOption_Port: port,
+                GCDWebServerOption_BindToLocalhost: true
+             ])
+             return port
+        }
+    }
+
     private func stopLocalServer() {
         if let server = webServer, server.isRunning {
              server.stop()
