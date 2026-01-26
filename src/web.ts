@@ -49,4 +49,25 @@ export class DevServerWeb extends WebPlugin implements DevServerPlugin {
   async applyServer(): Promise<ServerOptions> {
     return this.getServer();
   }
+
+  async downloadAsset(options: { url: string; overwrite?: boolean; checksum?: string }): Promise<void> {
+    console.warn('downloadAsset is not supported on web', options);
+  }
+
+  async getAssetList(): Promise<{ assets: string[] }> {
+    console.warn('getAssetList is not supported on web');
+    return { assets: [] };
+  }
+
+  async applyAsset(options: { assetName: string; persist?: boolean }): Promise<void> {
+    console.warn('applyAsset is not supported on web', options);
+  }
+
+  async removeAsset(options: { assetName: string }): Promise<void> {
+    console.warn('removeAsset is not supported on web', options);
+  }
+
+  async restoreDefaultAsset(): Promise<void> {
+    console.warn('restoreDefaultAsset is not supported on web');
+  }
 }

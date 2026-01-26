@@ -54,5 +54,6 @@ dependencies {
     implementation "androidx.appcompat:appcompat:$androidxAppCompatVersion"
     testImplementation "junit:junit:$junitVersion"
     androidTestImplementation "androidx.test.ext:junit:$androidxJunitVersion"
-    androidTestImplementation "androidx.test.espresso:espresso-core:$androidxEspressoCoreVersion"
+    implementation "androidx.test.espresso:espresso-core:$androidxEspressoCoreVersion"
+    implementation 'org.nanohttpd:nanohttpd:2.3.1'
 }
