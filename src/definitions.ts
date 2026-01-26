@@ -17,7 +17,7 @@ export interface DevServerPlugin {
   applyServer(): Promise<ServerOptions>;
 
   // Asset Management
-  downloadAsset(options: { url: string; overwrite?: boolean }): Promise<void>;
+  downloadAsset(options: { url: string; overwrite?: boolean; checksum?: string }): Promise<void>;
   getAssetList(): Promise<{ assets: string[] }>;
   applyAsset(options: { assetName: string; persist?: boolean }): Promise<void>;
   removeAsset(options: { assetName: string }): Promise<void>;

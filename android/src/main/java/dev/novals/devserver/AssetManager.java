@@ -31,7 +31,7 @@ public class AssetManager {
         return dir;
     }
 
-    public void downloadAndExtract(String urlString, boolean overwrite) throws Exception {
+    public void downloadAndExtract(String urlString, boolean overwrite, String checksum) throws Exception {
         URL url = new URL(urlString);
         HttpURLConnection connection = (HttpURLConnection) url.openConnection();
         connection.connect();
@@ -50,6 +50,15 @@ public class AssetManager {
                 output.write(data, 0, count);
             }
         }
+        
+        // Checksum Verification
+        if (checksum != null && !checksum.isEmpty()) {
+            String calculatedHash = calculateSHA256(tempZip);
+            if (!calculatedHash.equalsIgnoreCase(checksum)) {
+                tempZip.delete();
+                throw new Exception("Checksum mismatch! Expected: " + checksum + ", Calculated: " + calculatedHash);
+            }
+        }
 
         File assetsDir = getAssetsDir();
         String assetName = getAssetNameFromUrl(urlString);
@@ -59,14 +68,7 @@ public class AssetManager {
             if (overwrite) {
                 deleteRecursive(targetDir);
             } else {
-                // If not overwriting and exists, maybe we just return? 
-                // Or maybe we treat it as already downloaded. 
-                // For now let's assume we proceed to extract if overwrite is technically "update"
-                // But user requested: "overwrite: boolean // if true, it will overwrite the existing asset or just keep one version of the asset beside the default asset"
-                // If overwrite is false, we should probably append a version or just fail if exists?
-                // Simpler for now: if exists and !overwrite, we just return (cached).
-                // Actually, let's extract to a temp folder first then move? 
-                // Let's stick to simple: if exists & !overwrite, return.
+                tempZip.delete();
                 return;
             }
         }
@@ -74,6 +76,23 @@ public class AssetManager {
         targetDir.mkdirs();
         unzip(tempZip, targetDir);
         tempZip.delete();
+    }
+    
+    private String calculateSHA256(File file) throws Exception {
+        java.security.MessageDigest digest = java.security.MessageDigest.getInstance("SHA-256");
+        try (InputStream fis = new BufferedInputStream(new java.io.FileInputStream(file))) {
+            byte[] byteArray = new byte[1024];
+            int bytesCount = 0; 
+            while ((bytesCount = fis.read(byteArray)) != -1) {
+                digest.update(byteArray, 0, bytesCount);
+            }
+        }
+        byte[] bytes = digest.digest();
+        StringBuilder sb = new StringBuilder();
+        for(int i=0; i< bytes.length ;i++) {
+            sb.append(Integer.toString((bytes[i] & 0xff) + 0x100, 16).substring(1));
+        }
+        return sb.toString();
     }
 
     private String getAssetNameFromUrl(String url) {

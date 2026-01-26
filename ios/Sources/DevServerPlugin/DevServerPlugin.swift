@@ -110,11 +110,12 @@ public class DevServerPlugin: CAPPlugin, CAPBridgedPlugin {
     @objc func downloadAsset(_ call: CAPPluginCall) {
         guard let url = call.getString("url") else {
             call.reject("URL is required")
-            return
+            return 
         }
         let overwrite = call.getBool("overwrite") ?? false
+        let checksum = call.getString("checksum")
         
-        assetManager.downloadAndExtract(url: url, overwrite: overwrite) { error in
+        assetManager.downloadAndExtract(url: url, overwrite: overwrite, checksum: checksum) { error in
             if let error = error {
                 call.reject("Download failed: \(error.localizedDescription)")
             } else {

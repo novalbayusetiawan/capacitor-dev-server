@@ -95,17 +95,22 @@ refreshAssetList();
 // Asset Management Logic
 document.addEventListener('app:download', async () => {
     const input = document.getElementById('assetUrl');
+    const checksumInput = document.getElementById('assetChecksum');
     const overwriteToggle = document.getElementById('overwriteToggle');
     const url = input.value.trim();
+    const checksum = checksumInput.value.trim();
+    
     if (!url) return;
     
     try {
         await DevServer.downloadAsset({ 
             url, 
-            overwrite: overwriteToggle.checked 
+            overwrite: overwriteToggle.checked,
+            checksum: checksum || undefined
         });
         alert('Download complete!');
         refreshAssetList();
+        checksumInput.value = ''; // clear after success
     } catch (e) {
         alert('Download failed: ' + e.message);
     }

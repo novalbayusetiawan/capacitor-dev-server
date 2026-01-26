@@ -1,5 +1,6 @@
 import Foundation
 import SSZipArchive
+import CommonCrypto
 
 class AssetManager {
     static let shared = AssetManager()
@@ -24,7 +25,7 @@ class AssetManager {
         return dir
     }
 
-    func downloadAndExtract(url: String, overwrite: Bool, completion: @escaping (Error?) -> Void) {
+    func downloadAndExtract(url: String, overwrite: Bool, checksum: String?, completion: @escaping (Error?) -> Void) {
         guard let downloadUrl = URL(string: url) else {
             completion(NSError(domain: "DevServer", code: 1, userInfo: [NSLocalizedDescriptionKey: "Invalid URL"]))
             return
@@ -39,6 +40,19 @@ class AssetManager {
             guard let localUrl = localUrl, let assetsDir = self.getAssetsDir() else {
                 completion(NSError(domain: "DevServer", code: 2, userInfo: [NSLocalizedDescriptionKey: "Download failed"]))
                 return
+            }
+            
+            // Checksum Verification
+            if let checksum = checksum, !checksum.isEmpty {
+                if let calculatedHash = self.sha256(url: localUrl) {
+                    if calculatedHash.caseInsensitiveCompare(checksum) != .orderedSame {
+                        completion(NSError(domain: "DevServer", code: 4, userInfo: [NSLocalizedDescriptionKey: "Checksum mismatch! Expected: \(checksum), Calculated: \(calculatedHash)"]))
+                        return
+                    }
+                } else {
+                     completion(NSError(domain: "DevServer", code: 5, userInfo: [NSLocalizedDescriptionKey: "Failed to calculate checksum"]))
+                     return
+                }
             }
 
             let assetName = self.getAssetNameFromUrl(url: url)
@@ -77,6 +91,39 @@ class AssetManager {
             }
         }
         task.resume()
+    }
+    
+    // SHA-256 Helper
+    private func sha256(url: URL) -> String? {
+        do {
+            let bufferSize = 1024 * 1024
+            let file = try FileHandle(forReadingFrom: url)
+            defer { file.closeFile() }
+            
+            var context = CC_SHA256_CTX()
+            CC_SHA256_Init(&context)
+            
+            while autoreleasepool(invoking: {
+                let data = file.readData(ofLength: bufferSize)
+                if data.count > 0 {
+                    data.withUnsafeBytes { (bytes: UnsafeRawBufferPointer) in
+                        _ = CC_SHA256_Update(&context, bytes.baseAddress, CC_LONG(data.count))
+                    }
+                    return true
+                } else {
+                    return false
+                }
+            }) { }
+            
+            var digest = Data(count: Int(CC_SHA256_DIGEST_LENGTH))
+            digest.withUnsafeMutableBytes { (bytes: UnsafeMutableRawBufferPointer) in
+                _ = CC_SHA256_Final(bytes.bindMemory(to: UInt8.self).baseAddress, &context)
+            }
+            
+            return digest.map { String(format: "%02x", $0) }.joined()
+        } catch {
+            return nil
+        }
     }
 
     func getAssetNameFromUrl(url: String) -> String {

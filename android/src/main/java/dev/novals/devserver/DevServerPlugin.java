@@ -128,6 +128,7 @@ public class DevServerPlugin extends Plugin {
     public void downloadAsset(PluginCall call) {
         String url = call.getString("url");
         Boolean overwrite = call.getBoolean("overwrite", false);
+        String checksum = call.getString("checksum");
 
         if (url == null) {
             call.reject("URL is required");
@@ -137,7 +138,7 @@ public class DevServerPlugin extends Plugin {
         // Run in background
         new Thread(() -> {
             try {
-                assetManager.downloadAndExtract(url, overwrite);
+                assetManager.downloadAndExtract(url, overwrite, checksum);
                 call.resolve();
             } catch (Exception e) {
                 call.reject("Download failed: " + e.getMessage());

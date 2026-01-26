@@ -50,7 +50,7 @@ export class DevServerWeb extends WebPlugin implements DevServerPlugin {
     return this.getServer();
   }
 
-  async downloadAsset(options: { url: string; overwrite?: boolean }): Promise<void> {
+  async downloadAsset(options: { url: string; overwrite?: boolean; checksum?: string }): Promise<void> {
     console.warn('downloadAsset is not supported on web', options);
   }
 
