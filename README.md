@@ -1,17 +1,31 @@
 # capacitor-dev-server
 
-A Capacitor plugin to dynamically load the development server URL at runtime. This allows you to switch between different development servers (or between local dev and production) without rebuilding the native app.
+**Dynamic updates for your Capacitor environment.** 🚀
 
-## Install
+A powerful Capacitor plugin that gives you full control over your app's web content source. Switch between local development servers for live reload or download and serve static web asset bundles dynamically.
+
+## ✨ Features
+
+- **🖥️ Remote Dev Server**: Connect your app to a running local server (e.g., `http://192.168.1.x:3000`) on your network. Perfect for Live Reload during development without rebuilding native code.
+- **📦 Dynamic Bundles**: Download ZIP files containing your web app (HTML/CSS/JS), extract them locally, and serve them offline. Great for "Code Push" style updates or testing different branches.
+- **⚡ Hot Swapping**: Switch between localized bundles or remote servers instantly.
+- **🔒 Security**: Built-in SHA-256 Checksum verification ensures downloaded assets are authentic and untampered.
+- **💾 Persistence**: Optionally persist your chosen environment (Server URL or Local Bundle) across app restarts.
+
+---
+
+## 📦 Install
 
 ```bash
 npm install capacitor-dev-server
 npx cap sync
 ```
 
-## Android Setup
+## 🔧 Setup
 
-To enable dynamic loading on Android, you must modify your `MainActivity.java` to inject the configuration before the Bridge initializes.
+To enable dynamic loading, you must inject the configuration before Capacitor initializes.
+
+### Android
 
 Open `android/app/src/main/java/.../MainActivity.java` and override the `load()` method:
 
@@ -35,27 +49,19 @@ public class MainActivity extends BridgeActivity {
 
 > [!IMPORTANT]
 > **Android Cleartext Traffic**
+> To allow `http://` traffic (common for local dev servers), enable Cleartext Traffic.
 >
-> By default, Android blocks non-HTTPS traffic. To load `http://` dev servers, you have two options:
->
-> **Option 1: Main Manifest (Simple)**
-> Add `android:usesCleartextTraffic="true"` to your `<application>` tag in `android/app/src/main/AndroidManifest.xml`.
->
-> **Option 2: Debug Manifest (Recommended)**
-> Create a debug-specific manifest at `android/app/src/debug/AndroidManifest.xml` to enable it only for development:
+> **Recommended**: Create `android/app/src/debug/AndroidManifest.xml`:
 >
 > ```xml
-> <?xml version="1.0" encoding="utf-8"?>
 > <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 >     <application android:usesCleartextTraffic="true" />
 > </manifest>
 > ```
 
-## iOS Setup
+### iOS
 
-To enable dynamic loading on iOS, you must modify (or create) your `ViewController.swift` to merge the saved options with the default Capacitor options.
-
-Open `ios/App/App/ViewController.swift`. If it doesn't exist, create it.
+Open `ios/App/App/ViewController.swift` (create it if missing):
 
 ```swift
 import UIKit
@@ -70,54 +76,92 @@ class ViewController: CAPBridgeViewController {
 
         // Merge with our dev server options
         let devOptions = DevServer.capacitorOptions()
-        for (key, value) in devOptions {
+        for (key, value) in devOptions ?? [:] {
             options[key] = value
         }
 
         return options
     }
-
-    override func viewDidLoad() {
-        super.viewDidLoad()
-    }
 }
 ```
 
-> **Note:** If you just created `ViewController.swift`, make sure your Main.storyboard points to this class for the initial view controller.
+> **Note**: Ensure `Main.storyboard` uses `ViewController` as the initial view controller.
 
-## Usage
+---
 
-The primary use case for this plugin is to allow your Capacitor app to connect to a development server running on your local machine without having to rebuild the native application.
+## 🛠️ Usage
 
-### Basic Usage
+### Feature 1: Remote Dev Server
 
-Simply provide the URL of your development server. The plugin will automatically infer whether cleartext (HTTP) or specific schemes are needed based on the provided URL.
-
-By default, the server configuration is **session-only** (it will revert to the default when the app is restarted). Set `persist: true` if you want it to survive an app restart.
+Connect to your computer's local server for live reload.
 
 ```typescript
 import { DevServer } from 'capacitor-dev-server';
 
-async function connectToDevServer() {
-  await DevServer.setServer({
-    url: 'http://192.168.1.5:3000',
-    autoRestart: true,
-    persist: true, // Optional: survives app restart. Default: false
-  });
-}
+// Connect to a remote server
+await DevServer.setServer({
+  url: 'http://192.168.1.5:3000',
+  autoRestart: true,
+  persist: true, // Remember this URL on next app launch
+});
+
+// Revert to the built-in app bundle
+await DevServer.restoreDefaultAsset();
+```
+
+### Feature 2: Webview Bundles (Asset Management)
+
+Download and serve web assets dynamically.
+
+```typescript
+import { DevServer } from 'capacitor-dev-server';
+
+// 1. Download a zip bundle (with optional security check)
+await DevServer.downloadAsset({
+  url: 'https://example.com/build-v2.zip',
+  overwrite: true,
+  checksum: 'a1b2c3d4...', // Optional SHA-256 hash for verification
+});
+
+// 2. List available bundles
+const { assets } = await DevServer.getAssetList();
+console.log(assets); // ['build-v2']
+
+// 3. Apply the bundle (Hot Swap)
+await DevServer.applyAsset({
+  assetName: 'build-v2',
+  persist: true, // Load this bundle on next app launch
+});
 ```
 
 ---
 
-## API
+## 📚 API
+
+<docgen-index>
+
+- [`setServer(...)`](#setserver)
+- [`getServer()`](#getserver)
+- [`clearServer()`](#clearserver)
+- [`downloadAsset(...)`](#downloadasset)
+- [`getAssetList()`](#getassetlist)
+- [`applyAsset(...)`](#applyasset)
+- [`removeAsset(...)`](#removeasset)
+- [`restoreDefaultAsset()`](#restoredefaultasset)
+- [Interfaces](#interfaces)
+
+</docgen-index>
+
+<docgen-api>
+<!--Update the source(s) to generate documents.-->
 
 ### setServer(...)
-
-Updates the server configuration.
 
 ```typescript
 setServer(options: ServerOptions) => Promise<ServerOptions>
 ```
+
+Updates the app to point to a specific server URL.
 
 | Param         | Type                                                    | Description                        |
 | ------------- | ------------------------------------------------------- | ---------------------------------- |
@@ -129,11 +173,11 @@ setServer(options: ServerOptions) => Promise<ServerOptions>
 
 ### getServer()
 
-Retrieves the currently saved server configuration.
-
 ```typescript
 getServer() => Promise<ServerOptions>
 ```
+
+Retrieves the currently active server URL or asset configuration.
 
 **Returns:** <code>Promise&lt;<a href="#serveroptions">ServerOptions</a>&gt;</code>
 
@@ -141,25 +185,77 @@ getServer() => Promise<ServerOptions>
 
 ### clearServer()
 
-Clears all saved server configurations (both session and persistent) and resets the app to its default state. This will trigger an app restart.
-
 ```typescript
 clearServer() => Promise<{ cleared: boolean; }>
 ```
+
+Resets configuration to defaults.
 
 **Returns:** <code>Promise&lt;{ cleared: boolean; }&gt;</code>
 
 ---
 
-### applyServer()
-
-Forces an application restart to apply the currently saved server configuration.
+### downloadAsset(...)
 
 ```typescript
-applyServer() => Promise<ServerOptions>
+downloadAsset(options: { url: string; overwrite?: boolean; checksum?: string; }) => Promise<void>
 ```
 
-**Returns:** <code>Promise&lt;<a href="#serveroptions">ServerOptions</a>&gt;</code>
+Downloads a ZIP file from a URL, verifies its checksum (optional), and extracts it.
+
+| Param         | Type                                                                  | Description                                  |
+| ------------- | --------------------------------------------------------------------- | -------------------------------------------- |
+| **`options`** | <code>{ url: string; overwrite?: boolean; checksum?: string; }</code> | `url`: URL to zip. `checksum`: SHA-256 hash. |
+
+---
+
+### getAssetList()
+
+```typescript
+getAssetList() => Promise<{ assets: string[]; }>
+```
+
+Returns a list of downloaded asset names.
+
+**Returns:** <code>Promise&lt;{ assets: string[]; }&gt;</code>
+
+---
+
+### applyAsset(...)
+
+```typescript
+applyAsset(options: { assetName: string; persist?: boolean; }) => Promise<void>
+```
+
+Switches the WebView to serve content from a downloaded asset.
+
+| Param         | Type                                                   | Description                                                  |
+| ------------- | ------------------------------------------------------ | ------------------------------------------------------------ |
+| **`options`** | <code>{ assetName: string; persist?: boolean; }</code> | `assetName`: Name of folder. `persist`: Save across restart. |
+
+---
+
+### removeAsset(...)
+
+```typescript
+removeAsset(options: { assetName: string; }) => Promise<void>
+```
+
+Deletes a downloaded asset from the device.
+
+| Param         | Type                                | Description |
+| ------------- | ----------------------------------- | ----------- |
+| **`options`** | <code>{ assetName: string; }</code> |             |
+
+---
+
+### restoreDefaultAsset()
+
+```typescript
+restoreDefaultAsset() => Promise<void>
+```
+
+Restores the app to use the built-in bundled web assets.
 
 ---
 
@@ -167,12 +263,10 @@ applyServer() => Promise<ServerOptions>
 
 #### ServerOptions
 
-The configuration object for the dev server.
-
-| Prop              | Type                 | Description                                                                      | Default |
-| ----------------- | -------------------- | -------------------------------------------------------------------------------- | ------- |
-| **`url`**         | <code>string</code>  | The server URL (e.g. http://192.168.1.5:3000)                                    | —       |
-| **`autoRestart`** | <code>boolean</code> | Automatically reload the webview / restart native activity (default: true)       | `true`  |
-| **`persist`**     | <code>boolean</code> | Whether to save the server URL across app restarts/kill process (default: false) | `false` |
+| Prop              | Type                 | Description                               |
+| ----------------- | -------------------- | ----------------------------------------- |
+| **`url`**         | <code>string</code>  | The URL to connect to.                    |
+| **`autoRestart`** | <code>boolean</code> | Restart app automatically after applying. |
+| **`persist`**     | <code>boolean</code> | Persist this setting across app restarts. |
 
 </docgen-api>
