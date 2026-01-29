@@ -265,10 +265,10 @@ public class DevServerPlugin: CAPPlugin, CAPBridgedPlugin {
             if let vc = storyboard.instantiateInitialViewController() {
                 window.rootViewController = vc
             } else {
-                self.bridge?.reload()
+                self.webView?.reload()
             }
         } else {
-            self.bridge?.reload()
+            self.webView?.reload()
         }
     }
 }
