@@ -66,23 +66,30 @@ Open `ios/App/App/ViewController.swift` (create it if missing):
 ```swift
 import UIKit
 import Capacitor
-// Import the plugin
-import DevServerPlugin
+import CapacitorDevServer
 
 class ViewController: CAPBridgeViewController {
 
-    override func capacitorOptions() -> [String : Any]! {
-        var options = super.capacitorOptions() ?? [:]
-
+    override func instanceDescriptor() -> InstanceDescriptor {
+        let descriptor = super.instanceDescriptor()
+        
         // Merge with our dev server options
         let devOptions = DevServer.capacitorOptions()
-        for (key, value) in devOptions ?? [:] {
-            options[key] = value
+        if let server = devOptions["server"] as? [String: Any],
+           let url = server["url"] as? String {
+            descriptor.serverURL = url
         }
-
-        return options
+        
+        return descriptor
     }
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        // Do any additional setup after loading the view.
+    }
+
 }
+
 ```
 
 > **Note**: Ensure `Main.storyboard` uses `ViewController` as the initial view controller.
