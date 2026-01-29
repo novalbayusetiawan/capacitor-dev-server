@@ -140,20 +140,21 @@ await DevServer.applyAsset({
 
 <docgen-index>
 
-- [`setServer(...)`](#setserver)
-- [`getServer()`](#getserver)
-- [`clearServer()`](#clearserver)
-- [`downloadAsset(...)`](#downloadasset)
-- [`getAssetList()`](#getassetlist)
-- [`applyAsset(...)`](#applyasset)
-- [`removeAsset(...)`](#removeasset)
-- [`restoreDefaultAsset()`](#restoredefaultasset)
-- [Interfaces](#interfaces)
+* [`setServer(...)`](#setserver)
+* [`getServer()`](#getserver)
+* [`clearServer()`](#clearserver)
+* [`applyServer()`](#applyserver)
+* [`downloadAsset(...)`](#downloadasset)
+* [`getAssetList()`](#getassetlist)
+* [`applyAsset(...)`](#applyasset)
+* [`removeAsset(...)`](#removeasset)
+* [`restoreDefaultAsset()`](#restoredefaultasset)
+* [Interfaces](#interfaces)
 
 </docgen-index>
 
 <docgen-api>
-<!--Update the source(s) to generate documents.-->
+<!--Update the source file JSDoc comments and rerun docgen to update the docs below-->
 
 ### setServer(...)
 
@@ -161,15 +162,14 @@ await DevServer.applyAsset({
 setServer(options: ServerOptions) => Promise<ServerOptions>
 ```
 
-Updates the app to point to a specific server URL.
-
-| Param         | Type                                                    | Description                        |
-| ------------- | ------------------------------------------------------- | ---------------------------------- |
-| **`options`** | <code><a href="#serveroptions">ServerOptions</a></code> | The server configuration to apply. |
+| Param         | Type                                                    |
+| ------------- | ------------------------------------------------------- |
+| **`options`** | <code><a href="#serveroptions">ServerOptions</a></code> |
 
 **Returns:** <code>Promise&lt;<a href="#serveroptions">ServerOptions</a>&gt;</code>
 
----
+--------------------
+
 
 ### getServer()
 
@@ -177,11 +177,10 @@ Updates the app to point to a specific server URL.
 getServer() => Promise<ServerOptions>
 ```
 
-Retrieves the currently active server URL or asset configuration.
-
 **Returns:** <code>Promise&lt;<a href="#serveroptions">ServerOptions</a>&gt;</code>
 
----
+--------------------
+
 
 ### clearServer()
 
@@ -189,11 +188,21 @@ Retrieves the currently active server URL or asset configuration.
 clearServer() => Promise<{ cleared: boolean; }>
 ```
 
-Resets configuration to defaults.
-
 **Returns:** <code>Promise&lt;{ cleared: boolean; }&gt;</code>
 
----
+--------------------
+
+
+### applyServer()
+
+```typescript
+applyServer() => Promise<ServerOptions>
+```
+
+**Returns:** <code>Promise&lt;<a href="#serveroptions">ServerOptions</a>&gt;</code>
+
+--------------------
+
 
 ### downloadAsset(...)
 
@@ -201,13 +210,12 @@ Resets configuration to defaults.
 downloadAsset(options: { url: string; overwrite?: boolean; checksum?: string; }) => Promise<void>
 ```
 
-Downloads a ZIP file from a URL, verifies its checksum (optional), and extracts it.
+| Param         | Type                                                                  |
+| ------------- | --------------------------------------------------------------------- |
+| **`options`** | <code>{ url: string; overwrite?: boolean; checksum?: string; }</code> |
 
-| Param         | Type                                                                  | Description                                  |
-| ------------- | --------------------------------------------------------------------- | -------------------------------------------- |
-| **`options`** | <code>{ url: string; overwrite?: boolean; checksum?: string; }</code> | `url`: URL to zip. `checksum`: SHA-256 hash. |
+--------------------
 
----
 
 ### getAssetList()
 
@@ -215,11 +223,10 @@ Downloads a ZIP file from a URL, verifies its checksum (optional), and extracts 
 getAssetList() => Promise<{ assets: string[]; }>
 ```
 
-Returns a list of downloaded asset names.
-
 **Returns:** <code>Promise&lt;{ assets: string[]; }&gt;</code>
 
----
+--------------------
+
 
 ### applyAsset(...)
 
@@ -227,13 +234,12 @@ Returns a list of downloaded asset names.
 applyAsset(options: { assetName: string; persist?: boolean; }) => Promise<void>
 ```
 
-Switches the WebView to serve content from a downloaded asset.
+| Param         | Type                                                   |
+| ------------- | ------------------------------------------------------ |
+| **`options`** | <code>{ assetName: string; persist?: boolean; }</code> |
 
-| Param         | Type                                                   | Description                                                  |
-| ------------- | ------------------------------------------------------ | ------------------------------------------------------------ |
-| **`options`** | <code>{ assetName: string; persist?: boolean; }</code> | `assetName`: Name of folder. `persist`: Save across restart. |
+--------------------
 
----
 
 ### removeAsset(...)
 
@@ -241,13 +247,12 @@ Switches the WebView to serve content from a downloaded asset.
 removeAsset(options: { assetName: string; }) => Promise<void>
 ```
 
-Deletes a downloaded asset from the device.
+| Param         | Type                                |
+| ------------- | ----------------------------------- |
+| **`options`** | <code>{ assetName: string; }</code> |
 
-| Param         | Type                                | Description |
-| ------------- | ----------------------------------- | ----------- |
-| **`options`** | <code>{ assetName: string; }</code> |             |
+--------------------
 
----
 
 ### restoreDefaultAsset()
 
@@ -255,18 +260,18 @@ Deletes a downloaded asset from the device.
 restoreDefaultAsset() => Promise<void>
 ```
 
-Restores the app to use the built-in bundled web assets.
+--------------------
 
----
 
 ### Interfaces
 
+
 #### ServerOptions
 
-| Prop              | Type                 | Description                               |
-| ----------------- | -------------------- | ----------------------------------------- |
-| **`url`**         | <code>string</code>  | The URL to connect to.                    |
-| **`autoRestart`** | <code>boolean</code> | Restart app automatically after applying. |
-| **`persist`**     | <code>boolean</code> | Persist this setting across app restarts. |
+| Prop              | Type                 | Description                                                                                                                    | Default            |
+| ----------------- | -------------------- | ------------------------------------------------------------------------------------------------------------------------------ | ------------------ |
+| **`url`**         | <code>string</code>  |                                                                                                                                |                    |
+| **`autoRestart`** | <code>boolean</code> |                                                                                                                                |                    |
+| **`persist`**     | <code>boolean</code> | Whether to persist the server URL across app restarts. If false, the server will revert to the default on the next app launch. | <code>false</code> |
 
 </docgen-api>
