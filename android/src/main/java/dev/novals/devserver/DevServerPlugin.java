@@ -261,9 +261,15 @@ public class DevServerPlugin extends Plugin {
                         JSObject direct = new JSObject();
                         direct.put("isUpdateAvailable", true);
                         direct.put("downloadUrl", urlString);
-                        // Use unique string from URL as ID
+
+                        // Try to get real ID from header, fallback to URL hash (without prefix)
+                        String bundleId = conn.getHeaderField("X-Bundle-Id");
+                        if (bundleId == null) {
+                            bundleId = String.valueOf(Math.abs(urlString.hashCode()));
+                        }
+
                         JSObject bundle = new JSObject();
-                        bundle.put("id", "dl-" + Math.abs(urlString.hashCode()));
+                        bundle.put("id", bundleId);
                         direct.put("latestBundle", bundle);
                         callback.onResult(direct);
                         return;
@@ -381,7 +387,7 @@ public class DevServerPlugin extends Plugin {
         getPrefs().edit()
             .remove("server_url")
             .remove("active_asset")
-            .commit();
+            .apply();
         
         getBridge().executeOnMainThread(() -> {
             getActivity().recreate();
