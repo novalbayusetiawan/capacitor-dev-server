@@ -31,7 +31,7 @@ public class AssetManager {
         return dir;
     }
 
-    public void downloadAndExtract(String urlString, boolean overwrite, String checksum) throws Exception {
+    public void downloadAndExtract(String urlString, String assetName, boolean overwrite, String checksum) throws Exception {
         URL url = new URL(urlString);
         HttpURLConnection connection = (HttpURLConnection) url.openConnection();
         connection.connect();
@@ -61,7 +61,9 @@ public class AssetManager {
         }
 
         File assetsDir = getAssetsDir();
-        String assetName = getAssetNameFromUrl(urlString);
+        if (assetName == null || assetName.isEmpty()) {
+            assetName = getAssetNameFromUrl(urlString);
+        }
         File targetDir = new File(assetsDir, assetName);
 
         if (targetDir.exists()) {

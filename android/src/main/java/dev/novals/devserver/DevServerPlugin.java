@@ -138,7 +138,7 @@ public class DevServerPlugin extends Plugin {
         // Run in background
         new Thread(() -> {
             try {
-                assetManager.downloadAndExtract(url, overwrite, checksum);
+                assetManager.downloadAndExtract(url, null, overwrite, checksum);
                 call.resolve();
             } catch (Exception e) {
                 call.reject("Download failed: " + e.getMessage());
@@ -194,13 +194,18 @@ public class DevServerPlugin extends Plugin {
             // Start Download
             new Thread(() -> {
                 try {
-                    assetManager.downloadAndExtract(downloadUrl, true, null);
+                    // Extract ID first so we can use it for the folder name
+                    JSObject latestBundle = data.getJSObject("latestBundle");
+                    String assetId = null;
+                    if (latestBundle != null && latestBundle.has("id")) {
+                        assetId = String.valueOf(latestBundle.get("id"));
+                    }
+
+                    assetManager.downloadAndExtract(downloadUrl, assetId, true, null);
                     
                     // Apply new asset
-                    JSObject latestBundle = data.getJSObject("latestBundle");
-                    if (latestBundle != null && latestBundle.has("id")) {
-                        Object assetId = latestBundle.get("id");
-                        applyBundleInternal(String.valueOf(assetId), true, call);
+                    if (assetId != null) {
+                        applyBundleInternal(assetId, true, call);
                     } else {
                         JSObject ret = new JSObject();
                         ret.put("updated", true);
