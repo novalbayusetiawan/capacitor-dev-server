@@ -180,7 +180,8 @@ public class DevServerPlugin extends Plugin {
     @PluginMethod
     public void sync(PluginCall call) {
         performUpdateCheck(call, (data) -> {
-            boolean isUpdateAvailable = data.getBool("isUpdateAvailable", false);
+            Boolean isUpdate = data.getBool("isUpdateAvailable");
+            boolean isUpdateAvailable = isUpdate != null && isUpdate;
             String downloadUrl = data.getString("downloadUrl");
 
             if (!isUpdateAvailable || downloadUrl == null) {
