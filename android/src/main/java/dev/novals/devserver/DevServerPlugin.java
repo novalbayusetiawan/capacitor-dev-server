@@ -253,8 +253,14 @@ public class DevServerPlugin extends Plugin {
                     org.json.JSONObject json = new org.json.JSONObject(response.toString());
                     JSObject result = new JSObject();
                     result.put("isUpdateAvailable", json.optBoolean("is_update_available", false));
-                    result.put("latestBundle", JSObject.fromJSONObject(json.optJSONObject("latest_bundle")));
-                    result.put("currentBundle", JSObject.fromJSONObject(json.optJSONObject("current_bundle")));
+                    org.json.JSONObject latestBundle = json.optJSONObject("latest_bundle");
+                    if (latestBundle != null) {
+                        result.put("latestBundle", JSObject.fromJSONObject(latestBundle));
+                    }
+                    org.json.JSONObject currentBundle = json.optJSONObject("current_bundle");
+                    if (currentBundle != null) {
+                        result.put("currentBundle", JSObject.fromJSONObject(currentBundle));
+                    }
                     result.put("downloadUrl", json.optString("download_url", null));
 
                     callback.onResult(result);
