@@ -250,7 +250,26 @@ public class DevServerPlugin extends Plugin {
                     }
                     in.close();
 
-                    org.json.JSONObject json = new org.json.JSONObject(response.toString());
+                    String responseStr = response.toString();
+                    if (responseStr.startsWith("PK")) {
+                        // This is a direct ZIP file! Return synthetic data for sync to handle
+                        JSObject direct = new JSObject();
+                        direct.put("isUpdateAvailable", true);
+                        direct.put("downloadUrl", urlString);
+                        // Use unique string from URL as ID
+                        JSObject bundle = new JSObject();
+                        bundle.put("id", "dl-" + Math.abs(urlString.hashCode()));
+                        direct.put("latestBundle", bundle);
+                        callback.onResult(direct);
+                        return;
+                    }
+
+                    org.json.JSONObject json;
+                    try {
+                        json = new org.json.JSONObject(responseStr);
+                    } catch (org.json.JSONException e) {
+                        throw e;
+                    }
                     JSObject result = new JSObject();
                     result.put("isUpdateAvailable", json.optBoolean("is_update_available", false));
                     org.json.JSONObject latestBundle = json.optJSONObject("latest_bundle");
