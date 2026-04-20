@@ -20,6 +20,9 @@ public class DevServerPlugin: CAPPlugin, CAPBridgedPlugin {
         CAPPluginMethod(name: "applyAsset", returnType: CAPPluginReturnPromise),
         CAPPluginMethod(name: "removeAsset", returnType: CAPPluginReturnPromise),
         CAPPluginMethod(name: "restoreDefaultAsset", returnType: CAPPluginReturnPromise),
+        // Automated Updates
+        CAPPluginMethod(name: "checkForUpdate", returnType: CAPPluginReturnPromise),
+        CAPPluginMethod(name: "sync", returnType: CAPPluginReturnPromise),
     ]
     private let implementation = DevServer()
     private let defaults = UserDefaults.standard
@@ -145,8 +148,12 @@ public class DevServerPlugin: CAPPlugin, CAPBridgedPlugin {
         }
         let persist = call.getBool("persist") ?? false
         
+        self.applyBundleInternal(assetName: assetName, persist: persist, call: call)
+    }
+
+    private func applyBundleInternal(assetName: String, persist: Bool, call: CAPPluginCall?) {
         guard let assetPath = assetManager.getAssetPath(assetName: assetName) else {
-            call.reject("Asset not found")
+            call?.reject("Asset not found")
             return
         }
         
@@ -160,7 +167,7 @@ public class DevServerPlugin: CAPPlugin, CAPBridgedPlugin {
         do {
             actualPort = try startLocalServer(webRootDir: webRootPath)
         } catch {
-             call.reject("Failed to start local server: \(error.localizedDescription)")
+             call?.reject("Failed to start local server: \(error.localizedDescription)")
              return
         }
         
@@ -180,9 +187,93 @@ public class DevServerPlugin: CAPPlugin, CAPBridgedPlugin {
             self.reloadApp()
         }
         
-        call.resolve()
+        call?.resolve()
     }
     
+    // MARK: - Automated Updates
+
+    @objc func checkForUpdate(_ call: CAPPluginCall) {
+        performUpdateCheck(call: call) { data in
+            call.resolve(data)
+        }
+    }
+
+    @objc func sync(_ call: CAPPluginCall) {
+        performUpdateCheck(call: call) { data in
+            let isUpdateAvailable = data["isUpdateAvailable"] as? Bool ?? false
+            guard isUpdateAvailable, let downloadUrl = data["downloadUrl"] as? String else {
+                call.resolve(["updated": false])
+                return
+            }
+
+            // Start Download
+            self.assetManager.downloadAndExtract(url: downloadUrl, overwrite: true, checksum: nil) { error in
+                if let error = error {
+                    call.reject("Sync failed at download: \(error.localizedDescription)")
+                    return
+                }
+
+                // Apply new asset
+                if let latestBundle = data["latestBundle"] as? [String: Any],
+                   let assetId = latestBundle["id"] {
+                    self.applyBundleInternal(assetName: String(describing: assetId), persist: true, call: call)
+                } else {
+                    call.resolve(["updated": true, "note": "downloaded but could not auto-apply id mapping"])
+                }
+            }
+        }
+    }
+
+    private func performUpdateCheck(call: CAPPluginCall, completion: @escaping ([String: Any]) -> Void) {
+        guard let urlString = call.getString("url") else {
+            call.reject("URL is required")
+            return
+        }
+        let channel = call.getString("channel") ?? "production"
+        
+        guard let url = URL(string: urlString) else {
+            call.reject("Invalid URL")
+            return
+        }
+
+        var request = URLRequest(url: url)
+        request.httpMethod = "GET"
+        
+        // Metadata Headers
+        request.addValue(UIDevice.current.identifierForVendor?.uuidString ?? "unknown", forHTTPHeaderField: "X-Device-Identifier")
+        request.addValue("ios", forHTTPHeaderField: "X-Platform")
+        request.addValue(defaults.string(forKey: "active_asset") ?? "", forHTTPHeaderField: "X-Bundle-Id")
+        request.addValue(channel, forHTTPHeaderField: "X-Channel")
+
+        let task = URLSession.shared.dataTask(with: request) { data, response, error in
+            if let error = error {
+                call.reject("Update check failed: \(error.localizedDescription)")
+                return
+            }
+
+            guard let data = data else {
+                call.reject("No data received from update server")
+                return
+            }
+
+            do {
+                if let json = try JSONSerialization.jsonObject(with: data, options: []) as? [String: Any] {
+                    var result: [String: Any] = [:]
+                    result["isUpdateAvailable"] = json["is_update_available"] ?? false
+                    result["latestBundle"] = json["latest_bundle"]
+                    result["currentBundle"] = json["current_bundle"]
+                    result["downloadUrl"] = json["download_url"]
+                    completion(result)
+                } else {
+                    call.reject("Invalid JSON response from update server")
+                }
+            } catch {
+                call.reject("JSON parsing error: \(error.localizedDescription)")
+            }
+        }
+        task.resume()
+    }
+
     // Recursive search for index.html
     private func findWebRoot(dir: URL) -> URL? {
         let fileManager = FileManager.default

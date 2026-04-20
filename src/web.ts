@@ -70,4 +70,14 @@ export class DevServerWeb extends WebPlugin implements DevServerPlugin {
   async restoreDefaultAsset(): Promise<void> {
     console.warn('restoreDefaultAsset is not supported on web');
   }
+
+  async checkForUpdate(options: { url: string; channel?: string }): Promise<any> {
+    console.warn('checkForUpdate is not supported on web', options);
+    return { isUpdateAvailable: false };
+  }
+
+  async sync(options: { url: string; channel?: string }): Promise<{ updated: boolean }> {
+    console.warn('sync is not supported on web', options);
+    return { updated: false };
+  }
 }

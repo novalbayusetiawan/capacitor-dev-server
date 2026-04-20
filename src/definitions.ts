@@ -9,6 +9,18 @@ export interface ServerOptions {
   persist?: boolean;
 }
 
+export interface SyncOptions {
+  url: string;
+  channel?: string;
+}
+
+export interface CheckUpdateResult {
+  isUpdateAvailable: boolean;
+  latestBundle?: any;
+  currentBundle?: any;
+  downloadUrl?: string;
+}
+
 export interface DevServerPlugin {
   // Multi-field operations
   setServer(options: ServerOptions): Promise<ServerOptions>;
@@ -22,4 +34,8 @@ export interface DevServerPlugin {
   applyAsset(options: { assetName: string; persist?: boolean }): Promise<void>;
   removeAsset(options: { assetName: string }): Promise<void>;
   restoreDefaultAsset(): Promise<void>;
+
+  // Automated Updates
+  checkForUpdate(options: SyncOptions): Promise<CheckUpdateResult>;
+  sync(options: SyncOptions): Promise<{ updated: boolean }>;
 }
